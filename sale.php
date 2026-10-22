@@ -43,6 +43,8 @@ if (isset($_POST['submit'])) {
     <h2>Pharmacy Sales System</h2>
     <h3>Sale Entry Form</h3>
 
+    <p><a href="report.php">View Sales Report</a></p>
+
     <p><?php echo htmlspecialchars($message); ?></p>
 
     <form method="post">
