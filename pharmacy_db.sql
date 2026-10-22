@@ -1,5 +1,5 @@
--- DBMS Lab Mini Project - Q13 Pharmacy Sales System
--- Import this file using phpMyAdmin.
+
+
 CREATE DATABASE IF NOT EXISTS pharmacy_db
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE pharmacy_db;
@@ -52,8 +52,6 @@ INSERT INTO medicine (medicine_name, manufacturer, unit_price) VALUES
 ('Antacid Tablets', 'Abbott', 45.00),
 ('Amoxicillin 250 mg', 'Cipla', 85.00);
 
--- Optional example sale rows so the report has data immediately.
--- These may be deleted if the instructor requires an initially empty transaction table.
 INSERT INTO `sale` (customer_id, medicine_id, quantity, sale_date) VALUES
 (1, 1, 2, '2026-10-21'),
 (2, 5, 1, '2026-10-21');
