@@ -1,47 +1,40 @@
 # Pharmacy Sales System — DBMS Lab Mini Project
 
-- **Student name:** Blessen P Shaju
-- **Roll number:** 13
-- **Question number:** Q13
+- **Student Name:** Blessen P Shaju
+- **Roll Number:** 13
+- **Question Number:** Q13
 - **Project:** Pharmacy Sales System
 - **Database:** `pharmacy_db`
 
-## Description
+## How PHP Connects to MySQL and Executes Queries
 
-This project records pharmacy medicine sales and displays a report containing customer name, medicine name, quantity, amount, and sale date. It uses PHP, MySQL, HTML, and CSS and is designed to run locally with XAMPP.
+1. **Database Connection:** `db.php` establishes the connection between PHP and MySQL using the `mysqli` extension with host `localhost`, username `root`, an empty password, and database `pharmacy_db`.
+2. **Form Submission:** When `sale.php` is submitted via HTTP POST, the selected customer ID, medicine ID, quantity, and sale date are captured and validated.
+3. **Executing INSERT Query:** A prepared statement (`INSERT INTO sale (customer_id, medicine_id, quantity, sale_date) VALUES (?, ?, ?, ?)`) is prepared with `$conn->prepare()`, securely bound with `$stmt->bind_param("iiis", ...)`, and executed using `$stmt->execute()` to store the sale record.
+4. **Executing SELECT Query:** `report.php` issues a multi-table `SELECT` query joining `sale`, `customer`, and `medicine` using `INNER JOIN` to fetch the customer name, medicine name, quantity, and sale date.
+5. **Amount Calculation:** The sale amount is computed dynamically in SQL as `(m.unit_price * s.quantity) AS amount`.
+6. **Result Display:** Results are fetched row-by-row using `$result->fetch_assoc()` and rendered into an HTML table with appropriate output escaping.
 
-## Files
+## Deliverables Checklist
 
-- `db.php` — connects PHP to the `pharmacy_db` MySQL database.
-- `sale.php` — displays the entry form and inserts a sale using a prepared SQL statement.
-- `report.php` — joins `sale`, `customer`, and `medicine` to display the report. The amount is calculated as `unit_price * quantity`.
-- `pharmacy_db.sql` — creates the tables and inserts sample master records.
-- `screenshots/` — save the required screenshots here.
+1. **Source Code:**
+   - `db.php` — Database connection configuration
+   - `sale.php` — Sale entry form with link to the report
+   - `report.php` — Plain tabular sales report with link to the entry form
+2. **Database File:**
+   - `pharmacy_db.sql` — MySQL database export containing table definitions and sample data
+3. **Screenshots (`screenshots/` folder):**
+   - `screenshots/entry_form.png` — Sale entry form
+   - `screenshots/confirmation_message.png` — Confirmation message ("Record saved successfully!")
+   - `screenshots/report_page.png` — Sales report page
+4. **Documentation:**
+   - `README.md` — Student credentials, 6-line query execution note, setup instructions, and deliverables checklist
 
-## How it works
+## Setup Instructions (XAMPP)
 
-1. Start Apache and MySQL in XAMPP.
-2. Import `pharmacy_db.sql` through phpMyAdmin to create the database, tables, and sample records.
-3. `db.php` opens a MySQL connection using PHP's `mysqli` extension and is included in both pages.
-4. The entry form in `sale.php` sends the selected customer, medicine, quantity, and date using POST. PHP validates the fields and uses a prepared `INSERT` statement to save the sale.
-5. `report.php` executes a `SELECT` query with `INNER JOIN` across the three tables. It calculates each sale amount using the medicine unit price multiplied by the quantity and displays the results in an HTML table.
-
-## Setup using XAMPP
-
-1. Copy the `dbms-lab-13` folder into your XAMPP `htdocs` directory. Example on Windows: `C:\\xampp\\htdocs\\dbms-lab-13`.
-2. Open the XAMPP Control Panel and start **Apache** and **MySQL**.
-3. Visit `http://localhost/phpmyadmin`.
-4. Choose **Import**, select `pharmacy_db.sql`, and run the import.
-5. Open `http://localhost/dbms-lab-13/sale.php`.
-6. Save a test sale, then open the report page to check that it appears.
-7. Take screenshots of the entry form, successful save message, and report page. Save them in `screenshots/`.
-
-## GitHub submission
-
-Create a public repository named `dbms-lab-13`, then upload the project files and screenshots. Confirm that the files are visible when logged out, and submit the repository link to your faculty before the deadline.
-
-## Notes
-
-- The default XAMPP MySQL account is commonly `root` with an empty password on a local installation. If your MySQL password differs, update `db.php`.
-- The SQL file includes two example sale records so the report is populated on first import. Remove the optional `INSERT INTO sale` section if your instructor wants an initially empty transaction table.
-- Use fictional/sample data for the lab demonstration.
+1. Place the `dbms-lab-13` folder inside your XAMPP `htdocs` directory (e.g. `C:\xampp\htdocs\dbms-lab-13`).
+2. Start **Apache** and **MySQL** from the XAMPP Control Panel.
+3. Open `http://localhost/phpmyadmin` in your browser.
+4. Import `pharmacy_db.sql` into phpMyAdmin.
+5. Open `http://localhost/dbms-lab-13/sale.php` to add new sales.
+6. Open `http://localhost/dbms-lab-13/report.php` to view the sales report.
