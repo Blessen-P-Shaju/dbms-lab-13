@@ -56,6 +56,7 @@ $total_transactions = 0;
 $total_units        = 0;
 $total_revenue      = 0.0;
 $medicine_totals    = [];
+$date_totals        = [];
 
 if ($result) {
     while ($r = $result->fetch_assoc()) {
@@ -70,7 +71,32 @@ if ($result) {
             $medicine_totals[$med_key] = 0.0;
         }
         $medicine_totals[$med_key] += $amt;
+
+        $d_key = $r['sale_date'];
+        if (!isset($date_totals[$d_key])) {
+            $date_totals[$d_key] = 0.0;
+        }
+        $date_totals[$d_key] += $amt;
     }
+}
+
+ksort($date_totals);
+$spark_points = "";
+if (count($date_totals) > 0) {
+    $vals = array_values($date_totals);
+    $n = count($vals);
+    $max_d = max($vals) > 0 ? max($vals) : 1;
+    $pts = [];
+    foreach ($vals as $idx => $v) {
+        $x = $n > 1 ? round(($idx / ($n - 1)) * 96 + 2, 1) : 50;
+        $y = round(24 - ($v / $max_d) * 18, 1);
+        $pts[] = "$x,$y";
+    }
+    if ($n === 1) {
+        $y_only = explode(',', $pts[0])[1];
+        $pts = ["4,$y_only", "96,$y_only"];
+    }
+    $spark_points = implode(" ", $pts);
 }
 
 arsort($medicine_totals);
@@ -90,13 +116,24 @@ render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
             <?php echo render_svg_icon('bar-chart', 'icon-sm'); ?>
             <span>Revenue &amp; Dispensing Analytics</span>
         </span>
-        <h1 class="editorial-title">Sales <span class="accent-word">Performance</span> Overview.</h1>
+        <h1 class="editorial-title">
+            Sales <span class="hero-thin">&amp;</span> <span class="hero-gradient-word">Revenue</span><br>
+            Intelligence.
+        </h1>
         <p class="editorial-desc">Real-time transaction metrics, medicine revenue breakdown, and filterable sales history.</p>
     </div>
 
     <div class="report-hero-revenue">
         <span>Total Matching Revenue</span>
-        <strong data-countup="<?php echo number_format($total_revenue, 2, '.', ''); ?>" data-prefix="₹" data-decimals="2">₹<?php echo number_format($total_revenue, 2); ?></strong>
+        <strong class="tabular-nums" data-countup="<?php echo number_format($total_revenue, 2, '.', ''); ?>" data-prefix="₹" data-decimals="2">₹<?php echo number_format($total_revenue, 2); ?></strong>
+        <?php if (!empty($spark_points)) : ?>
+            <div class="sparkline-wrap" title="Daily revenue trend from matching database records">
+                <svg width="100" height="28" viewBox="0 0 100 28" fill="none" aria-hidden="true">
+                    <polyline points="<?php echo $spark_points; ?>" stroke="#14B8A6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                <span><?php echo count($date_totals); ?> day(s)</span>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

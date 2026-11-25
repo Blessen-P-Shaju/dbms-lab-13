@@ -132,4 +132,37 @@
             topSearch.value = reportSearch.value;
         });
     }
+
+    // 6. Smooth Section Reveals
+    const revealEls = document.querySelectorAll('.reveal-section');
+    if (revealEls.length) {
+        if (reducedMotion || !('IntersectionObserver' in window)) {
+            revealEls.forEach((el) => el.classList.add('is-revealed'));
+        } else {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-revealed');
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08 });
+            revealEls.forEach((el) => io.observe(el));
+        }
+    }
+
+    // 7. Subtle Magnetic-Style Hover on Primary Buttons (disabled for reduced motion)
+    if (!reducedMotion) {
+        document.querySelectorAll('.btn-primary').forEach((btn) => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const dx = ((e.clientX - rect.left) / rect.width - 0.5) * 6;
+                const dy = ((e.clientY - rect.top) / rect.height - 0.5) * 6;
+                btn.style.transform = `translate(${dx.toFixed(1)}px, ${(dy - 2).toFixed(1)}px)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
+            });
+        });
+    }
 })();

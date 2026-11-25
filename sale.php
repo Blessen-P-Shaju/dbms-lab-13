@@ -112,57 +112,69 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
             <?php echo render_svg_icon('sparkles', 'icon-sm'); ?>
             <span>Point-of-Sale Workspace</span>
         </span>
-        <h1 class="editorial-title">Dispense &amp; <span class="accent-word">Record</span> Pharmacy Sales.</h1>
+        <h1 class="editorial-title">
+            Dispense <span class="hero-thin">&amp;</span><br>
+            <span class="hero-gradient-word">Manage</span> <span class="hero-teal-word">Care.</span>
+        </h1>
         <p class="editorial-desc">Select an existing customer and medicine or register new records in one atomic MySQL transaction with live billing.</p>
     </div>
 
-    <!-- Abstract Layered Organic Medical & Capsule Art (No Square Frame) -->
+    <!-- Abstract Layered Organic Medical Bottle, Capsules & Crosses (No Square Frame) -->
     <div class="editorial-art" aria-hidden="true">
-        <svg viewBox="0 0 360 240" fill="none">
+        <svg viewBox="0 0 380 250" fill="none">
             <defs>
                 <linearGradient id="blobGrad" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stop-color="#3B5BFF" stop-opacity="0.16"/>
                     <stop offset="55%" stop-color="#A78BFA" stop-opacity="0.18"/>
                     <stop offset="100%" stop-color="#14B8A6" stop-opacity="0.18"/>
                 </linearGradient>
+                <linearGradient id="bottleSilhouette" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#14B8A6"/>
+                    <stop offset="100%" stop-color="#3B5BFF"/>
+                </linearGradient>
                 <linearGradient id="capCobalt" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stop-color="#3B5BFF"/>
                     <stop offset="100%" stop-color="#A78BFA"/>
                 </linearGradient>
-                <linearGradient id="capTeal" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#14B8A6"/>
-                    <stop offset="100%" stop-color="#38BDF8"/>
+                <linearGradient id="capCoral" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#FF7A6B"/>
+                    <stop offset="100%" stop-color="#F5B942"/>
                 </linearGradient>
             </defs>
 
-            <!-- Organic Flowing Backdrop Shape -->
-            <path d="M54 118C44 64 98 22 174 28C250 34 318 68 310 132C302 196 232 222 154 212C76 202 64 172 54 118Z" fill="url(#blobGrad)"/>
-            <circle cx="272" cy="54" r="36" fill="#FF7A6B" fill-opacity="0.14"/>
-            <circle cx="84" cy="186" r="24" fill="#14B8A6" fill-opacity="0.16"/>
+            <!-- Organic Flowing Backdrop & Geometric Arcs -->
+            <path d="M48 122C38 64 98 20 182 26C266 32 336 70 326 136C316 202 242 230 158 218C74 206 58 180 48 122Z" fill="url(#blobGrad)"/>
+            <circle cx="294" cy="56" r="38" fill="#FF7A6B" fill-opacity="0.14"/>
+            <circle cx="82" cy="192" r="24" fill="#14B8A6" fill-opacity="0.18"/>
+            <path d="M52 162 C110 218, 250 222, 324 168" stroke="#A78BFA" stroke-width="1.5" stroke-dasharray="5 6" opacity="0.55"/>
 
-            <!-- Floating Abstract Capsules & Medical Cross -->
             <g class="drift-layer">
-                <!-- Large Cobalt/White Capsule -->
-                <g transform="translate(158, 42) rotate(32)">
-                    <rect x="0" y="0" width="44" height="96" rx="22" fill="url(#capCobalt)"/>
-                    <path d="M0 48 H44 V74 A22 22 0 0 1 0 74 Z" fill="#FFFFFF"/>
-                    <rect x="11" y="14" width="6" height="22" rx="3" fill="#FFFFFF" opacity="0.45"/>
+                <!-- Stylised Medicine Bottle Silhouette -->
+                <g transform="translate(108, 66)">
+                    <rect x="16" y="0" width="44" height="16" rx="6" fill="#1E1B4B"/>
+                    <rect x="4" y="18" width="68" height="96" rx="18" fill="url(#bottleSilhouette)"/>
+                    <rect x="12" y="42" width="52" height="44" rx="10" fill="#FFFFFF" opacity="0.94"/>
+                    <rect x="35" y="51" width="6" height="22" rx="3" fill="#3B5BFF"/>
+                    <rect x="27" y="59" width="22" height="6" rx="3" fill="#3B5BFF"/>
                 </g>
 
-                <!-- Teal/White Capsule -->
-                <g transform="translate(242, 108) rotate(-28)">
-                    <rect x="0" y="0" width="32" height="72" rx="16" fill="url(#capTeal)"/>
-                    <path d="M0 36 H32 V56 A16 16 0 0 1 0 56 Z" fill="#FFFFFF"/>
+                <!-- Cobalt / White Capsule -->
+                <g transform="translate(216, 40) rotate(32)">
+                    <rect x="0" y="0" width="38" height="84" rx="19" fill="url(#capCobalt)"/>
+                    <path d="M0 42 H38 V65 A19 19 0 0 1 0 65 Z" fill="#FFFFFF"/>
                 </g>
 
-                <!-- Soft Coral Pill Ring -->
-                <circle cx="104" cy="96" r="22" stroke="#FF7A6B" stroke-width="10" fill="#FAF9F6"/>
+                <!-- Coral-Amber Capsule -->
+                <g transform="translate(268, 124) rotate(-26)">
+                    <rect x="0" y="0" width="30" height="66" rx="15" fill="url(#capCoral)"/>
+                    <path d="M0 33 H30 V51 A15 15 0 0 1 0 51 Z" fill="#FFFFFF"/>
+                </g>
 
-                <!-- Minimal Medical Cross -->
-                <g transform="translate(194, 152)">
-                    <rect x="0" y="0" width="46" height="46" rx="14" fill="#1E1B4B"/>
-                    <rect x="19" y="11" width="8" height="24" rx="4" fill="#14B8A6"/>
-                    <rect x="11" y="19" width="24" height="8" rx="4" fill="#14B8A6"/>
+                <!-- Minimal Medical Cross Pill -->
+                <g transform="translate(204, 154)">
+                    <rect x="0" y="0" width="44" height="44" rx="14" fill="#1E1B4B"/>
+                    <rect x="18" y="10" width="8" height="24" rx="4" fill="#14B8A6"/>
+                    <rect x="10" y="18" width="24" height="8" rx="4" fill="#14B8A6"/>
                 </g>
             </g>
         </svg>

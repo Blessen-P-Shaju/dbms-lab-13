@@ -5,7 +5,7 @@
 
 function render_svg_icon($name, $class = 'icon') {
     $icons = [
-        'logo' => '<svg class="' . $class . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="4" opacity="0.25"/></svg>',
+        'logo' => '<svg class="' . $class . '" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="7" fill="rgba(255,255,255,0.16)"/><path d="M14 8v12M8 14h12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="20.5" cy="7.5" r="2.5" fill="#14B8A6"/></svg>',
         'plus-circle' => '<svg class="' . $class . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>',
         'bar-chart' => '<svg class="' . $class . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="7" rx="1"/><rect x="12" y="6" width="3" height="11" rx="1"/><rect x="17" y="13" width="3" height="4" rx="1"/></svg>',
         'user' => '<svg class="' . $class . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
@@ -38,6 +38,12 @@ function render_app_shell_start($activePage, $pageTitle, $breadcrumb) {
     <link rel="stylesheet" href="style.css?v=<?php echo filemtime(__DIR__ . '/../style.css'); ?>">
 </head>
 <body>
+<div class="ambient-canvas" aria-hidden="true">
+    <div class="ambient-orb orb-cobalt"></div>
+    <div class="ambient-orb orb-teal"></div>
+    <div class="ambient-orb orb-coral"></div>
+    <div class="bg-texture"></div>
+</div>
 <div class="app-layout">
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
