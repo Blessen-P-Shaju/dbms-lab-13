@@ -100,18 +100,21 @@ while ($m = $map_res->fetch_assoc()) {
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pharmacy Sales</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="container">
 
     <h2>Pharmacy Sales System</h2>
     <h3>Sale Entry Form</h3>
 
-    <p><a href="report.php">View Sales Report</a></p>
+    <p><a class="nav-link" href="report.php">View Sales Report</a></p>
 
-    <p><?php echo htmlspecialchars($message); ?></p>
+    <p class="message"><?php echo htmlspecialchars($message); ?></p>
 
-    <form method="post">
+    <form method="post" class="sale-form">
 
         <h3>Select Existing Customer &amp; Medicine</h3>
         Customer:
@@ -254,5 +257,6 @@ while ($m = $map_res->fetch_assoc()) {
     });
     </script>
 
+</div>
 </body>
 </html>

@@ -56,15 +56,18 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Report</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="container container-wide">
 
     <h2>Pharmacy Sales Report</h2>
 
-    <p><a href="sale.php">Record New Sale</a></p>
+    <p><a class="nav-link" href="sale.php">Record New Sale</a></p>
 
-    <form method="get" action="">
+    <form method="get" action="" class="filter-bar">
         Select Report:
         <select name="customer_id" onchange="this.form.submit()">
             <option value="all" <?php if ($selected_customer === 'all') echo 'selected'; ?>>All Customers Report</option>
@@ -74,17 +77,17 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
                 </option>
             <?php } ?>
         </select>
-        &nbsp;&nbsp;
         From: <input type="date" name="from_date" value="<?php echo htmlspecialchars($from_date); ?>">
         To: <input type="date" name="to_date" value="<?php echo htmlspecialchars($to_date); ?>">
         <input type="submit" value="Filter">
-        <a href="report.php">Reset</a>
+        <a class="reset-link" href="report.php">Reset</a>
     </form>
-    <br>
 
-    Search: <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Type to search...">
-    <br><br>
+    <div class="search-bar">
+        Search: <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Type to search...">
+    </div>
 
+    <div class="table-wrapper">
     <table border="1" cellpadding="8" cellspacing="0" id="reportTable">
         <tr>
             <th>Sale ID</th>
@@ -120,6 +123,7 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
         }
         ?>
     </table>
+    </div>
 
     <script>
     function filterTable() {
@@ -131,5 +135,6 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
     }
     </script>
 
+</div>
 </body>
 </html>
