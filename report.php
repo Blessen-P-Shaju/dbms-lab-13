@@ -84,20 +84,15 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
 render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
 ?>
 
-<div class="hero-banner">
-    <div class="hero-copy">
+<div class="page-header">
+    <div>
         <h1>Sales Analytics &amp; Reports</h1>
         <p class="page-subtitle">Real-time transaction metrics, revenue breakdown, and filterable sales history.</p>
-        <div class="hero-actions">
-            <a href="sale.php" class="btn btn-primary">
-                <?php echo render_svg_icon('plus-circle', 'icon-sm'); ?>
-                <span>New Sale</span>
-            </a>
-        </div>
     </div>
-    <div class="hero-visual hero-visual-lg">
-        <img src="assets/3d/pharmacist-hero.svg" alt="3D Healthcare Pharmacist Character">
-    </div>
+    <a href="sale.php" class="btn btn-primary">
+        <?php echo render_svg_icon('plus-circle', 'icon-sm'); ?>
+        <span>New Sale</span>
+    </a>
 </div>
 
 <!-- KPI Summary Strip -->

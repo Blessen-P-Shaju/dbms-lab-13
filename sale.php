@@ -106,19 +106,48 @@ $medicines_res = $conn->query("SELECT * FROM medicine ORDER BY medicine_id ASC")
 render_app_shell_start('sale', 'Create New Sale', 'New Sale');
 ?>
 
-<div class="hero-banner">
-    <div class="hero-copy">
+<div class="welcome-3d-card">
+    <div class="welcome-copy">
+        <span class="welcome-kicker">Welcome to Pharmacy Management</span>
         <h1>Create New Sale</h1>
         <p class="page-subtitle">Select an existing customer and medicine or register new records in one atomic transaction.</p>
-        <div class="hero-actions">
+
+        <div class="welcome-controls">
             <div class="header-pill">
                 <?php echo render_svg_icon('sparkles', 'icon-sm'); ?>
-                <span>Auto ID &amp; Smart Selection Active</span>
+                <span>Drag to explore the 3D model.</span>
             </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="resetViewBtn">
+                <?php echo render_svg_icon('rotate-ccw', 'icon-sm'); ?>
+                <span>Reset View</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" id="toggleRotateBtn" aria-pressed="true">
+                <span>Auto-Rotate: On</span>
+            </button>
         </div>
     </div>
-    <div class="hero-visual">
-        <img src="assets/3d/pharmacist-hero.svg" alt="3D Pharmacist holding a digital tablet">
+
+    <div class="model-stage">
+        <div class="model-platform-glow"></div>
+        <model-viewer
+            id="pharmacistModel"
+            src="assets/models/pharmacist.glb"
+            poster="assets/3d/pharmacist-hero.svg"
+            alt="Interactive 360-degree 3D Pharmacist Character"
+            camera-controls
+            touch-action="pan-y"
+            auto-rotate
+            rotation-per-second="18deg"
+            autoplay
+            loading="lazy"
+            shadow-intensity="1"
+            shadow-softness="0.85"
+            exposure="1.08"
+            camera-orbit="0deg 78deg 2.65m"
+            min-camera-orbit="auto 45deg 1.9m"
+            max-camera-orbit="auto 95deg 3.8m">
+        </model-viewer>
+        <img src="assets/3d/pharmacist-hero.svg" alt="3D Pharmacist Illustration" class="model-fallback" id="modelFallback" hidden>
     </div>
 </div>
 
@@ -493,6 +522,56 @@ clearFormBtn.addEventListener("click", function () {
 });
 
 updatePurchaseSummary();
+</script>
+
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<script>
+(function () {
+    const mv = document.getElementById("pharmacistModel");
+    const fallback = document.getElementById("modelFallback");
+    const resetBtn = document.getElementById("resetViewBtn");
+    const rotateBtn = document.getElementById("toggleRotateBtn");
+    const defaultOrbit = "0deg 78deg 2.65m";
+
+    if (!mv) return;
+
+    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+        mv.removeAttribute("auto-rotate");
+        mv.removeAttribute("autoplay");
+        if (rotateBtn) {
+            rotateBtn.setAttribute("aria-pressed", "false");
+            rotateBtn.querySelector("span").textContent = "Auto-Rotate: Off";
+        }
+    }
+
+    mv.addEventListener("error", function () {
+        mv.hidden = true;
+        if (fallback) fallback.hidden = false;
+    });
+
+    if (resetBtn) {
+        resetBtn.addEventListener("click", function () {
+            mv.cameraOrbit = defaultOrbit;
+            mv.fieldOfView = "auto";
+        });
+    }
+
+    if (rotateBtn) {
+        rotateBtn.addEventListener("click", function () {
+            const isOn = mv.hasAttribute("auto-rotate");
+            if (isOn) {
+                mv.removeAttribute("auto-rotate");
+                rotateBtn.setAttribute("aria-pressed", "false");
+                rotateBtn.querySelector("span").textContent = "Auto-Rotate: Off";
+            } else {
+                mv.setAttribute("auto-rotate", "");
+                rotateBtn.setAttribute("aria-pressed", "true");
+                rotateBtn.querySelector("span").textContent = "Auto-Rotate: On";
+            }
+        });
+    }
+})();
 </script>
 
 <?php render_app_shell_end(); ?>
