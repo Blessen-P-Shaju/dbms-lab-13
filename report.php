@@ -1,5 +1,6 @@
 <?php
 include "db.php";
+require_once __DIR__ . "/includes/ui.php";
 
 $selected_customer = isset($_GET['customer_id']) ? $_GET['customer_id'] : 'all';
 $from_date         = isset($_GET['from_date']) ? trim($_GET['from_date']) : '';
@@ -51,128 +52,214 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 $rows = [];
-$total_sales_count = 0;
-$total_units = 0;
-$total_revenue = 0.0;
+$total_transactions = 0;
+$total_units        = 0;
+$total_revenue      = 0.0;
+$medicine_totals    = [];
+
 if ($result) {
     while ($r = $result->fetch_assoc()) {
         $rows[] = $r;
-        $total_sales_count++;
-        $total_units += intval($r['quantity']);
-        $total_revenue += floatval($r['amount']);
+        $total_transactions++;
+        $total_units   += intval($r['quantity']);
+        $amt            = floatval($r['amount']);
+        $total_revenue += $amt;
+
+        $med_key = $r['medicine_name'];
+        if (!isset($medicine_totals[$med_key])) {
+            $medicine_totals[$med_key] = 0.0;
+        }
+        $medicine_totals[$med_key] += $amt;
     }
 }
 
+arsort($medicine_totals);
+$max_med_revenue = count($medicine_totals) > 0 ? max($medicine_totals) : 1;
+
+$total_customers_row = $conn->query("SELECT COUNT(*) AS cnt FROM customer")->fetch_assoc();
+$total_customers     = intval($total_customers_row['cnt'] ?? 0);
+
 $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY customer_id ASC");
+
+render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Report</title>
-    <link rel="stylesheet" href="style.css?v=<?php echo filemtime('style.css'); ?>">
-</head>
-<body>
-<div class="container container-wide">
+<div class="page-header">
+    <div>
+        <h1>Sales Analytics &amp; Reports</h1>
+        <p class="page-subtitle">Real-time transaction metrics, revenue breakdown, and filterable sales history.</p>
+    </div>
+    <a href="sale.php" class="btn btn-primary">
+        <?php echo render_svg_icon('plus-circle', 'icon-sm'); ?>
+        <span>New Sale</span>
+    </a>
+</div>
 
-    <header class="app-header">
-        <div class="brand">
-            <div class="brand-icon">+</div>
-            <div>
-                <h2>PharmaCare Sales Report</h2>
-                <p class="brand-sub">Transaction Analytics &amp; History</p>
-            </div>
+<!-- KPI Summary Strip -->
+<section class="kpi-grid" aria-label="Sales Summary">
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span>Total Transactions</span>
+            <strong data-countup="<?php echo $total_transactions; ?>" data-decimals="0"><?php echo $total_transactions; ?></strong>
         </div>
-        <nav class="nav-tabs">
-            <a class="nav-link" href="sale.php">New Sale</a>
-            <a class="nav-link active" href="report.php">Sales Report</a>
-        </nav>
-    </header>
-
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-label">Total Transactions</div>
-            <div class="kpi-value"><?php echo $total_sales_count; ?></div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Total Units Sold</div>
-            <div class="kpi-value"><?php echo $total_units; ?></div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Total Revenue</div>
-            <div class="kpi-value">₹<?php echo number_format($total_revenue, 2); ?></div>
-        </div>
+        <div class="kpi-icon blue"><?php echo render_svg_icon('receipt'); ?></div>
     </div>
 
-    <form method="get" action="" class="filter-bar">
-        Select Report:
-        <select name="customer_id" onchange="this.form.submit()">
-            <option value="all" <?php if ($selected_customer === 'all') echo 'selected'; ?>>All Customers Report</option>
-            <?php while ($c = $customers->fetch_assoc()) { ?>
-                <option value="<?php echo $c['customer_id']; ?>" <?php if ($selected_customer == $c['customer_id']) echo 'selected'; ?>>
-                    <?php echo $c['customer_id'] . " - " . htmlspecialchars($c['name']); ?>
-                </option>
-            <?php } ?>
-        </select>
-        From: <input type="date" name="from_date" value="<?php echo htmlspecialchars($from_date); ?>">
-        To: <input type="date" name="to_date" value="<?php echo htmlspecialchars($to_date); ?>">
-        <input type="submit" value="Filter">
-        <a class="reset-link" href="report.php">Reset</a>
-    </form>
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span>Total Revenue</span>
+            <strong data-countup="<?php echo number_format($total_revenue, 2, '.', ''); ?>" data-prefix="₹" data-decimals="2">₹<?php echo number_format($total_revenue, 2); ?></strong>
+        </div>
+        <div class="kpi-icon teal"><?php echo render_svg_icon('wallet'); ?></div>
+    </div>
 
-    <div class="search-bar">
-        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by customer, medicine, manufacturer, or date...">
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span>Total Customers</span>
+            <strong data-countup="<?php echo $total_customers; ?>" data-decimals="0"><?php echo $total_customers; ?></strong>
+        </div>
+        <div class="kpi-icon purple"><?php echo render_svg_icon('users'); ?></div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <span>Units Sold</span>
+            <strong data-countup="<?php echo $total_units; ?>" data-decimals="0"><?php echo $total_units; ?></strong>
+        </div>
+        <div class="kpi-icon amber"><?php echo render_svg_icon('package'); ?></div>
+    </div>
+</section>
+
+<!-- Real-Data Sales Overview Chart -->
+<?php if (count($medicine_totals) > 0) : ?>
+<section class="chart-card" aria-label="Revenue by Medicine">
+    <div class="chart-header">
+        <h3>Revenue by Medicine</h3>
+        <span>Calculated from matching database records</span>
+    </div>
+    <div class="chart-bars">
+        <?php foreach (array_slice($medicine_totals, 0, 6, true) as $medName => $medRev) :
+            $pct = $max_med_revenue > 0 ? round(($medRev / $max_med_revenue) * 100, 1) : 0;
+        ?>
+            <div class="chart-bar-row">
+                <div class="chart-bar-label" title="<?php echo htmlspecialchars($medName); ?>">
+                    <?php echo htmlspecialchars($medName); ?>
+                </div>
+                <div class="chart-bar-track">
+                    <div class="chart-bar-fill" data-width="<?php echo $pct; ?>"></div>
+                </div>
+                <div class="chart-bar-value">₹<?php echo number_format($medRev, 2); ?></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Filters & Sales Table -->
+<section class="report-card">
+    <div class="filter-toolbar">
+        <form method="get" action="" class="filter-form">
+            <div class="filter-group">
+                <label for="customerFilter">Customer</label>
+                <select name="customer_id" id="customerFilter" onchange="this.form.submit()">
+                    <option value="all" <?php if ($selected_customer === 'all') echo 'selected'; ?>>All Customers Report</option>
+                    <?php while ($c = $customers->fetch_assoc()) : ?>
+                        <option value="<?php echo $c['customer_id']; ?>" <?php if ($selected_customer == $c['customer_id']) echo 'selected'; ?>>
+                            <?php echo $c['customer_id'] . " - " . htmlspecialchars($c['name']); ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="fromDate">From Date</label>
+                <input type="date" id="fromDate" name="from_date" value="<?php echo htmlspecialchars($from_date); ?>">
+            </div>
+
+            <div class="filter-group">
+                <label for="toDate">To Date</label>
+                <input type="date" id="toDate" name="to_date" value="<?php echo htmlspecialchars($to_date); ?>">
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <?php echo render_svg_icon('filter', 'icon-sm'); ?>
+                <span>Apply</span>
+            </button>
+
+            <a class="btn btn-secondary" href="report.php">
+                <?php echo render_svg_icon('rotate-ccw', 'icon-sm'); ?>
+                <span>Reset</span>
+            </a>
+        </form>
+
+        <div class="search-box">
+            <?php echo render_svg_icon('search', 'icon'); ?>
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search customer, medicine, date...">
+        </div>
     </div>
 
     <div class="table-wrapper">
-    <table border="1" cellpadding="8" cellspacing="0" id="reportTable">
-        <tr>
-            <th>Sale ID</th>
-            <th>Customer ID</th>
-            <th>Customer Name</th>
-            <th>Address</th>
-            <th>Phone</th>
-            <th>Medicine Name</th>
-            <th>Manufacturer</th>
-            <th>Quantity</th>
-            <th>Amount</th>
-            <th>Sale Date</th>
-        </tr>
+        <table id="reportTable">
+            <thead>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Customer</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th>Medicine</th>
+                    <th>Manufacturer</th>
+                    <th>Qty</th>
+                    <th>Amount</th>
+                    <th>Sale Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (count($rows) > 0) : ?>
+                    <?php foreach ($rows as $row) : ?>
+                        <tr>
+                            <td><span class="id-pill">#<?php echo $row['sale_id']; ?></span></td>
+                            <td>
+                                <strong><?php echo htmlspecialchars($row['customer_name']); ?></strong>
+                                <div style="font-size:0.75rem;color:#858BA3;">ID: <?php echo $row['customer_id']; ?></div>
+                            </td>
+                            <td><?php echo htmlspecialchars($row['address']); ?></td>
+                            <td><?php echo htmlspecialchars($row['phone']); ?></td>
+                            <td><strong><?php echo htmlspecialchars($row['medicine_name']); ?></strong></td>
+                            <td><span class="mfg-badge"><?php echo htmlspecialchars($row['manufacturer']); ?></span></td>
+                            <td><?php echo $row['quantity']; ?></td>
+                            <td class="amount-cell">₹<?php echo number_format((float)$row['amount'], 2); ?></td>
+                            <td><?php echo $row['sale_date']; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
 
-        <?php
-        if (count($rows) > 0) {
-            foreach ($rows as $row) {
-                echo "<tr>";
-                echo "<td>" . $row['sale_id'] . "</td>";
-                echo "<td>" . $row['customer_id'] . "</td>";
-                echo "<td>" . htmlspecialchars($row['customer_name']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['address']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['phone']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['medicine_name']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['manufacturer']) . "</td>";
-                echo "<td>" . $row['quantity'] . "</td>";
-                echo "<td>₹" . number_format((float)$row['amount'], 2) . "</td>";
-                echo "<td>" . $row['sale_date'] . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='10'>No records found</td></tr>";
-        }
-        ?>
-    </table>
+        <div class="empty-state" id="emptyState" style="display: <?php echo count($rows) === 0 ? 'block' : 'none'; ?>;">
+            <div class="empty-state-icon"><?php echo render_svg_icon('receipt', 'icon-lg'); ?></div>
+            <strong>No sales records found</strong>
+            <p>Try adjusting your customer filter, date range, or search query.</p>
+        </div>
     </div>
+</section>
 
-    <script>
-    function filterTable() {
-        const query = document.getElementById("searchInput").value.toLowerCase();
-        const rows = document.querySelectorAll("#reportTable tr");
-        for (let i = 1; i < rows.length; i++) {
-            rows[i].style.display = rows[i].textContent.toLowerCase().includes(query) ? "" : "none";
-        }
+<script>
+function filterTable() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const tbodyRows = document.querySelectorAll("#reportTable tbody tr");
+    let visibleCount = 0;
+
+    tbodyRows.forEach((row) => {
+        const match = row.textContent.toLowerCase().includes(query);
+        row.style.display = match ? "" : "none";
+        if (match) visibleCount++;
+    });
+
+    const emptyState = document.getElementById("emptyState");
+    if (emptyState) {
+        emptyState.style.display = visibleCount === 0 ? "block" : "none";
     }
-    </script>
+}
+</script>
 
-</div>
-</body>
-</html>
+<?php render_app_shell_end(); ?>
