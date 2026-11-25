@@ -58,7 +58,7 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Report</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?php echo filemtime('style.css'); ?>">
 </head>
 <body>
 <div class="container container-wide">
