@@ -84,15 +84,20 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
 render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
 ?>
 
-<div class="page-header">
-    <div>
+<div class="hero-banner">
+    <div class="hero-copy">
         <h1>Sales Analytics &amp; Reports</h1>
         <p class="page-subtitle">Real-time transaction metrics, revenue breakdown, and filterable sales history.</p>
+        <div class="hero-actions">
+            <a href="sale.php" class="btn btn-primary">
+                <?php echo render_svg_icon('plus-circle', 'icon-sm'); ?>
+                <span>New Sale</span>
+            </a>
+        </div>
     </div>
-    <a href="sale.php" class="btn btn-primary">
-        <?php echo render_svg_icon('plus-circle', 'icon-sm'); ?>
-        <span>New Sale</span>
-    </a>
+    <div class="hero-visual hero-visual-lg">
+        <img src="assets/3d/pharmacist-hero.svg" alt="3D Healthcare Pharmacist Character">
+    </div>
 </div>
 
 <!-- KPI Summary Strip -->
@@ -236,7 +241,7 @@ render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
         </table>
 
         <div class="empty-state" id="emptyState" style="display: <?php echo count($rows) === 0 ? 'block' : 'none'; ?>;">
-            <div class="empty-state-icon"><?php echo render_svg_icon('receipt', 'icon-lg'); ?></div>
+            <img src="assets/3d/medicine-empty.svg" alt="3D Medicine Bottle and Capsules" class="empty-state-3d">
             <strong>No sales records found</strong>
             <p>Try adjusting your customer filter, date range, or search query.</p>
         </div>

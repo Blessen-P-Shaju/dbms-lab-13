@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 190" fill="none">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E0E7FF"/>
+      <stop offset="100%" stop-color="#F5F7FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bottleBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+    <linearGradient id="capGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#DCE4F7"/>
+    </linearGradient>
+    <linearGradient id="pillCoral" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF9A8E"/>
+      <stop offset="100%" stop-color="#FF7A6B"/>
+    </linearGradient>
+    <linearGradient id="pillBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6D83F8"/>
+      <stop offset="100%" stop-color="#4965F5"/>
+    </linearGradient>
+    <filter id="drop" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#172554" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <circle cx="110" cy="98" r="84" fill="url(#bgGlow)"/>
+  <ellipse cx="110" cy="162" rx="64" ry="10" fill="#CBD5E1" opacity="0.45"/>
+
+  <!-- 3D Medicine Bottle -->
+  <g filter="url(#drop)">
+    <rect x="74" y="42" width="72" height="108" rx="18" fill="url(#bottleBody)"/>
+    <rect x="86" y="24" width="48" height="22" rx="7" fill="url(#capGrad)"/>
+    <rect x="80" y="64" width="60" height="54" rx="10" fill="#FFFFFF" opacity="0.95"/>
+    <rect x="106" y="74" width="8" height="24" rx="4" fill="#4965F5"/>
+    <rect x="98" y="82" width="24" height="8" rx="4" fill="#4965F5"/>
+    <rect x="92" y="104" width="36" height="5" rx="2.5" fill="#CBD5E1"/>
+    <ellipse cx="86" cy="78" rx="4" ry="20" fill="#FFFFFF" opacity="0.28"/>
+  </g>
+
+  <!-- Floating Coral Capsule -->
+  <g filter="url(#drop)" transform="translate(32, 114) rotate(-32)">
+    <rect x="0" y="0" width="22" height="44" rx="11" fill="url(#pillCoral)"/>
+    <path d="M0 22 H22 V33 A11 11 0 0 1 0 33 Z" fill="#FFFFFF"/>
+    <ellipse cx="7" cy="11" rx="2.5" ry="6" fill="#FFFFFF" opacity="0.45"/>
+  </g>
+
+  <!-- Floating Blue Capsule -->
+  <g filter="url(#drop)" transform="translate(158, 96) rotate(36)">
+    <rect x="0" y="0" width="20" height="40" rx="10" fill="url(#pillBlue)"/>
+    <path d="M0 20 H20 V30 A10 10 0 0 1 0 30 Z" fill="#FFFFFF"/>
+    <ellipse cx="6.5" cy="10" rx="2.5" ry="5" fill="#FFFFFF" opacity="0.45"/>
+  </g>
+</svg>

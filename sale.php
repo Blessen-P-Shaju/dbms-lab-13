@@ -106,14 +106,19 @@ $medicines_res = $conn->query("SELECT * FROM medicine ORDER BY medicine_id ASC")
 render_app_shell_start('sale', 'Create New Sale', 'New Sale');
 ?>
 
-<div class="page-header">
-    <div>
+<div class="hero-banner">
+    <div class="hero-copy">
         <h1>Create New Sale</h1>
         <p class="page-subtitle">Select an existing customer and medicine or register new records in one atomic transaction.</p>
+        <div class="hero-actions">
+            <div class="header-pill">
+                <?php echo render_svg_icon('sparkles', 'icon-sm'); ?>
+                <span>Auto ID &amp; Smart Selection Active</span>
+            </div>
+        </div>
     </div>
-    <div class="header-pill">
-        <?php echo render_svg_icon('sparkles', 'icon-sm'); ?>
-        <span>Auto ID &amp; Smart Selection Active</span>
+    <div class="hero-visual">
+        <img src="assets/3d/pharmacist-hero.svg" alt="3D Pharmacist holding a digital tablet">
     </div>
 </div>
 
@@ -121,7 +126,11 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
     <div class="alert-banner <?php echo $message_type; ?>" id="serverAlert"
          data-type="<?php echo $message_type; ?>"
          data-message="<?php echo htmlspecialchars($message); ?>">
-        <?php echo render_svg_icon($message_type === 'success' ? 'check' : 'alert'); ?>
+        <?php if ($message_type === 'success') : ?>
+            <img src="assets/3d/success-badge.svg" alt="" class="alert-3d-icon">
+        <?php else : ?>
+            <?php echo render_svg_icon('alert'); ?>
+        <?php endif; ?>
         <span><?php echo htmlspecialchars($message); ?></span>
     </div>
 <?php endif; ?>

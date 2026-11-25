@@ -52,6 +52,101 @@
     to { transform: rotate(360deg); }
 }
 
+@keyframes floatSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+}
+
+/* 3D Hero Welcome Banner */
+.hero-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 22px 28px;
+    margin-bottom: 24px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #FFFFFF 0%, #EEF2FF 55%, #E6FFFA 100%);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    animation: fadeSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-copy h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--navy);
+}
+
+.hero-copy .page-subtitle {
+    margin: 6px 0 14px;
+    max-width: 560px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.hero-visual {
+    width: 156px;
+    height: 146px;
+    border-radius: 20px;
+    background: radial-gradient(circle at 50% 45%, rgba(73, 101, 245, 0.12), rgba(20, 184, 166, 0.08));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 6px;
+}
+
+.hero-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: floatSlow 4.5s ease-in-out infinite;
+}
+
+.hero-visual.hero-visual-lg {
+    width: 180px;
+    height: 164px;
+}
+
+.empty-state-3d {
+    width: 132px;
+    height: 114px;
+    margin: 0 auto 10px;
+    object-fit: contain;
+    animation: floatSlow 4s ease-in-out infinite;
+}
+
+.alert-3d-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+.toast-3d-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+    .hero-banner {
+        flex-direction: column-reverse;
+        text-align: center;
+        padding: 20px;
+    }
+    .hero-actions {
+        justify-content: center;
+    }
+}
+
 body {
     margin: 0;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
