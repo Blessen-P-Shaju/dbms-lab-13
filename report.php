@@ -134,14 +134,23 @@ render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
 <?php if (count($medicine_totals) > 0) : ?>
 <section class="chart-card" aria-label="Revenue by Medicine">
     <div class="chart-header">
-        <h3>Revenue by Medicine</h3>
-        <span>Calculated from matching database records</span>
+        <div>
+            <h3>Revenue by Medicine</h3>
+            <span>Hover for details · Click a bar to filter the table</span>
+        </div>
+        <button type="button" class="pill-btn" id="clearChartFilter" hidden>Clear Medicine Filter</button>
     </div>
     <div class="chart-bars">
         <?php foreach (array_slice($medicine_totals, 0, 6, true) as $medName => $medRev) :
             $pct = $max_med_revenue > 0 ? round(($medRev / $max_med_revenue) * 100, 1) : 0;
+            $share = $total_revenue > 0 ? round(($medRev / $total_revenue) * 100, 1) : 0;
         ?>
-            <div class="chart-bar-row">
+            <div class="chart-bar-row is-clickable"
+                 role="button"
+                 tabindex="0"
+                 data-medicine="<?php echo htmlspecialchars($medName); ?>"
+                 data-revenue="<?php echo number_format($medRev, 2); ?>"
+                 data-share="<?php echo $share; ?>">
                 <div class="chart-bar-label" title="<?php echo htmlspecialchars($medName); ?>">
                     <?php echo htmlspecialchars($medName); ?>
                 </div>
@@ -152,13 +161,21 @@ render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
             </div>
         <?php endforeach; ?>
     </div>
+    <div class="chart-tooltip-bar" id="chartTooltipBar">Click any medicine bar above to filter matching sales records.</div>
 </section>
 <?php endif; ?>
 
 <!-- Filters & Sales Table -->
 <section class="report-card">
+    <div class="quick-date-pills" aria-label="Quick Date Filters">
+        <span class="control-label">Quick Range</span>
+        <button type="button" class="pill-btn" data-range="today">Today</button>
+        <button type="button" class="pill-btn" data-range="7">Last 7 Days</button>
+        <button type="button" class="pill-btn" data-range="30">Last 30 Days</button>
+    </div>
+
     <div class="filter-toolbar">
-        <form method="get" action="" class="filter-form">
+        <form method="get" action="" class="filter-form" id="reportFilterForm">
             <div class="filter-group">
                 <label for="customerFilter">Customer</label>
                 <select name="customer_id" id="customerFilter" onchange="this.form.submit()">
@@ -194,41 +211,51 @@ render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
 
         <div class="search-box">
             <?php echo render_svg_icon('search', 'icon'); ?>
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search customer, medicine, date...">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search customer, medicine... (Press /)">
+            <button type="button" class="search-clear-btn" id="clearSearchBtn" aria-label="Clear search">&times;</button>
         </div>
+    </div>
+
+    <div class="table-meta-bar">
+        <span class="record-count-pill" id="visibleCountPill">
+            Showing <strong id="visibleCount"><?php echo count($rows); ?></strong> of <?php echo count($rows); ?> records
+        </span>
+        <button type="button" class="btn btn-secondary btn-sm" id="exportCsvBtn">
+            <span>Export Visible CSV</span>
+        </button>
     </div>
 
     <div class="table-wrapper">
         <table id="reportTable">
             <thead>
                 <tr>
-                    <th>Sale ID</th>
-                    <th>Customer</th>
-                    <th>Address</th>
-                    <th>Phone</th>
-                    <th>Medicine</th>
-                    <th>Manufacturer</th>
-                    <th>Qty</th>
-                    <th>Amount</th>
-                    <th>Sale Date</th>
+                    <th class="sortable" data-col="0" data-type="num">Sale ID <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="1" data-type="text">Customer <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="2" data-type="text">Address <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="3" data-type="text">Phone <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="4" data-type="text">Medicine <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="5" data-type="text">Manufacturer <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="6" data-type="num">Qty <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="7" data-type="num">Amount <span class="sort-indicator">↕</span></th>
+                    <th class="sortable" data-col="8" data-type="date">Sale Date <span class="sort-indicator">↕</span></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (count($rows) > 0) : ?>
                     <?php foreach ($rows as $row) : ?>
-                        <tr>
-                            <td><span class="id-pill">#<?php echo $row['sale_id']; ?></span></td>
-                            <td>
+                        <tr data-medicine="<?php echo htmlspecialchars($row['medicine_name']); ?>">
+                            <td data-sort-val="<?php echo $row['sale_id']; ?>"><span class="id-pill">#<?php echo $row['sale_id']; ?></span></td>
+                            <td data-sort-val="<?php echo htmlspecialchars($row['customer_name']); ?>">
                                 <strong><?php echo htmlspecialchars($row['customer_name']); ?></strong>
                                 <div style="font-size:0.75rem;color:#858BA3;">ID: <?php echo $row['customer_id']; ?></div>
                             </td>
-                            <td><?php echo htmlspecialchars($row['address']); ?></td>
-                            <td><?php echo htmlspecialchars($row['phone']); ?></td>
-                            <td><strong><?php echo htmlspecialchars($row['medicine_name']); ?></strong></td>
-                            <td><span class="mfg-badge"><?php echo htmlspecialchars($row['manufacturer']); ?></span></td>
-                            <td><?php echo $row['quantity']; ?></td>
-                            <td class="amount-cell">₹<?php echo number_format((float)$row['amount'], 2); ?></td>
-                            <td><?php echo $row['sale_date']; ?></td>
+                            <td data-sort-val="<?php echo htmlspecialchars($row['address']); ?>"><?php echo htmlspecialchars($row['address']); ?></td>
+                            <td data-sort-val="<?php echo htmlspecialchars($row['phone']); ?>"><?php echo htmlspecialchars($row['phone']); ?></td>
+                            <td data-sort-val="<?php echo htmlspecialchars($row['medicine_name']); ?>"><strong><?php echo htmlspecialchars($row['medicine_name']); ?></strong></td>
+                            <td data-sort-val="<?php echo htmlspecialchars($row['manufacturer']); ?>"><span class="mfg-badge"><?php echo htmlspecialchars($row['manufacturer']); ?></span></td>
+                            <td data-sort-val="<?php echo $row['quantity']; ?>"><?php echo $row['quantity']; ?></td>
+                            <td data-sort-val="<?php echo (float)$row['amount']; ?>" class="amount-cell">₹<?php echo number_format((float)$row['amount'], 2); ?></td>
+                            <td data-sort-val="<?php echo $row['sale_date']; ?>"><?php echo $row['sale_date']; ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -244,22 +271,197 @@ render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
 </section>
 
 <script>
+let selectedMedicineFilter = "";
+
 function filterTable() {
-    const query = document.getElementById("searchInput").value.toLowerCase();
+    const searchInput = document.getElementById("searchInput");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+    const query = searchInput.value.toLowerCase();
+    if (clearSearchBtn) {
+        clearSearchBtn.classList.toggle("visible", query.length > 0);
+    }
+
     const tbodyRows = document.querySelectorAll("#reportTable tbody tr");
     let visibleCount = 0;
 
     tbodyRows.forEach((row) => {
-        const match = row.textContent.toLowerCase().includes(query);
-        row.style.display = match ? "" : "none";
-        if (match) visibleCount++;
+        const textMatch = row.textContent.toLowerCase().includes(query);
+        const medMatch = !selectedMedicineFilter || row.dataset.medicine === selectedMedicineFilter;
+        const show = textMatch && medMatch;
+        row.style.display = show ? "" : "none";
+        if (show) visibleCount++;
     });
+
+    const visibleCountEl = document.getElementById("visibleCount");
+    if (visibleCountEl) visibleCountEl.textContent = String(visibleCount);
 
     const emptyState = document.getElementById("emptyState");
     if (emptyState) {
         emptyState.style.display = visibleCount === 0 ? "block" : "none";
     }
 }
+
+(function () {
+    const searchInput      = document.getElementById("searchInput");
+    const clearSearchBtn   = document.getElementById("clearSearchBtn");
+    const clearChartBtn    = document.getElementById("clearChartFilter");
+    const chartTooltipBar  = document.getElementById("chartTooltipBar");
+    const chartRows        = document.querySelectorAll(".chart-bar-row[data-medicine]");
+    const quickDateBtns    = document.querySelectorAll(".quick-date-pills [data-range]");
+    const filterForm       = document.getElementById("reportFilterForm");
+    const fromDateInput    = document.getElementById("fromDate");
+    const toDateInput      = document.getElementById("toDate");
+    const exportCsvBtn     = document.getElementById("exportCsvBtn");
+    const sortableHeaders  = document.querySelectorAll("#reportTable th.sortable");
+
+    if (clearSearchBtn && searchInput) {
+        clearSearchBtn.addEventListener("click", function () {
+            searchInput.value = "";
+            const topMirror = document.getElementById("topbarSearchMirror");
+            if (topMirror) topMirror.value = "";
+            filterTable();
+            searchInput.focus();
+        });
+    }
+
+    // Interactive Chart Hover + Click Filter
+    function setChartFilter(medName) {
+        selectedMedicineFilter = medName;
+        chartRows.forEach((r) => r.classList.toggle("is-selected", r.dataset.medicine === medName));
+        if (clearChartBtn) clearChartBtn.hidden = !medName;
+        if (chartTooltipBar) {
+            chartTooltipBar.textContent = medName
+                ? "Filtering table by: " + medName
+                : "Click any medicine bar above to filter matching sales records.";
+        }
+        filterTable();
+    }
+
+    chartRows.forEach((row) => {
+        row.addEventListener("mouseenter", function () {
+            if (chartTooltipBar) {
+                chartTooltipBar.textContent = this.dataset.medicine + " — Revenue: ₹" + this.dataset.revenue + " (" + this.dataset.share + "% of total)";
+            }
+        });
+        row.addEventListener("click", function () {
+            const clicked = this.dataset.medicine;
+            setChartFilter(selectedMedicineFilter === clicked ? "" : clicked);
+        });
+        row.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                this.click();
+            }
+        });
+    });
+
+    if (clearChartBtn) {
+        clearChartBtn.addEventListener("click", () => setChartFilter(""));
+    }
+
+    // Quick Date Filters (working with existing PHP GET filters)
+    function formatYMD(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + day;
+    }
+
+    quickDateBtns.forEach((btn) => {
+        btn.addEventListener("click", function () {
+            const range = this.dataset.range;
+            const today = new Date();
+            const from = new Date(today);
+            if (range === "7") from.setDate(today.getDate() - 6);
+            if (range === "30") from.setDate(today.getDate() - 29);
+            fromDateInput.value = formatYMD(from);
+            toDateInput.value = formatYMD(today);
+            filterForm.submit();
+        });
+    });
+
+    // Clickable Column Sorting
+    let currentSortCol = -1;
+    let currentSortDir = "asc";
+
+    sortableHeaders.forEach((th) => {
+        th.addEventListener("click", function () {
+            const colIdx = parseInt(this.dataset.col, 10);
+            const type = this.dataset.type || "text";
+            currentSortDir = (currentSortCol === colIdx && currentSortDir === "asc") ? "desc" : "asc";
+            currentSortCol = colIdx;
+
+            sortableHeaders.forEach((h) => {
+                h.classList.remove("sort-asc", "sort-desc");
+                h.querySelector(".sort-indicator").textContent = "↕";
+            });
+            this.classList.add(currentSortDir === "asc" ? "sort-asc" : "sort-desc");
+            this.querySelector(".sort-indicator").textContent = currentSortDir === "asc" ? "▲" : "▼";
+
+            const tbody = document.querySelector("#reportTable tbody");
+            const rowsArr = Array.from(tbody.querySelectorAll("tr"));
+            rowsArr.sort((a, b) => {
+                const av = a.children[colIdx].dataset.sortVal || a.children[colIdx].textContent.trim();
+                const bv = b.children[colIdx].dataset.sortVal || b.children[colIdx].textContent.trim();
+                let cmp = 0;
+                if (type === "num") {
+                    cmp = (parseFloat(av) || 0) - (parseFloat(bv) || 0);
+                } else {
+                    cmp = av.localeCompare(bv, undefined, { numeric: true, sensitivity: "base" });
+                }
+                return currentSortDir === "asc" ? cmp : -cmp;
+            });
+            rowsArr.forEach((r) => tbody.appendChild(r));
+        });
+    });
+
+    // Safe CSV Export (Visible Filtered Rows Only + Formula Injection Protection)
+    function csvEscapeSafe(val) {
+        let str = String(val == null ? "" : val).replace(/\r?\n|\r/g, " ").trim();
+        if (/^[=+\-@\t\r]/.test(str)) {
+            str = "'" + str;
+        }
+        if (/[",]/.test(str)) {
+            str = '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+    }
+
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener("click", function () {
+            const headers = ["Sale ID", "Customer", "Address", "Phone", "Medicine", "Manufacturer", "Quantity", "Amount", "Sale Date"];
+            const visibleRows = Array.from(document.querySelectorAll("#reportTable tbody tr"))
+                .filter((r) => r.style.display !== "none");
+
+            if (visibleRows.length === 0) {
+                if (typeof window.showToast === "function") {
+                    window.showToast("Nothing to Export", "No visible sales records match your current filter.", "error");
+                }
+                return;
+            }
+
+            const lines = [headers.map(csvEscapeSafe).join(",")];
+            visibleRows.forEach((row) => {
+                const cells = Array.from(row.children).map((td) => td.dataset.sortVal !== undefined ? td.dataset.sortVal : td.textContent);
+                lines.push(cells.map(csvEscapeSafe).join(","));
+            });
+
+            const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "pharmacare-sales-report.csv";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+
+            if (typeof window.showToast === "function") {
+                window.showToast("CSV Exported", "Exported " + visibleRows.length + " visible sales record(s).", "success");
+            }
+        });
+    }
+})();
 </script>
 
 <?php render_app_shell_end(); ?>

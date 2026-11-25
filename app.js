@@ -1,5 +1,7 @@
 (function () {
-    // 1. Mobile Sidebar Drawer
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 1. Mobile Sidebar Drawer + Escape Key Close
     const sidebar = document.getElementById('appSidebar');
     const backdrop = document.getElementById('sidebarBackdrop');
     const toggleBtn = document.getElementById('sidebarToggle');
@@ -14,6 +16,30 @@
     if (toggleBtn) toggleBtn.addEventListener('click', () => setSidebar(true));
     if (closeBtn) closeBtn.addEventListener('click', () => setSidebar(false));
     if (backdrop) backdrop.addEventListener('click', () => setSidebar(false));
+
+    // Global Keyboard Shortcuts: Escape closes sidebar; '/' focuses report search
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (sidebar && sidebar.classList.contains('open')) {
+                setSidebar(false);
+            }
+            return;
+        }
+
+        if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            const active = document.activeElement;
+            const tag = active ? active.tagName : '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (active && active.isContentEditable)) {
+                return;
+            }
+            const searchEl = document.getElementById('searchInput') || document.getElementById('topbarSearchMirror');
+            if (searchEl) {
+                e.preventDefault();
+                searchEl.focus();
+                searchEl.select();
+            }
+        }
+    });
 
     // 2. Toast Notification Helper
     window.showToast = function (title, message, type) {
@@ -56,9 +82,17 @@
         const target = parseFloat(el.dataset.countup || '0');
         const prefix = el.dataset.prefix || '';
         const decimals = parseInt(el.dataset.decimals || '0', 10);
+
+        if (reducedMotion) {
+            el.textContent = prefix + target.toLocaleString('en-IN', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+            return;
+        }
+
         const duration = 650;
         const start = performance.now();
-
         function tick(now) {
             const progress = Math.min((now - start) / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3);

@@ -115,20 +115,36 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
         <div class="welcome-controls">
             <div class="header-pill">
                 <?php echo render_svg_icon('sparkles', 'icon-sm'); ?>
-                <span>Drag to explore the 3D model.</span>
+                <span>Drag to rotate · Scroll to zoom</span>
             </div>
-            <button type="button" class="btn btn-secondary btn-sm" id="resetViewBtn">
-                <?php echo render_svg_icon('rotate-ccw', 'icon-sm'); ?>
-                <span>Reset View</span>
-            </button>
-            <button type="button" class="btn btn-secondary btn-sm" id="toggleRotateBtn" aria-pressed="true">
-                <span>Auto-Rotate: On</span>
-            </button>
+        </div>
+
+        <div class="model-controls-panel" aria-label="3D Model Camera Controls">
+            <div class="control-row">
+                <span class="control-label">View</span>
+                <button type="button" class="pill-btn active" data-orbit="0deg 78deg 2.65m">Front</button>
+                <button type="button" class="pill-btn" data-orbit="-90deg 78deg 2.65m">Left</button>
+                <button type="button" class="pill-btn" data-orbit="90deg 78deg 2.65m">Right</button>
+                <button type="button" class="pill-btn" data-orbit="180deg 78deg 2.65m">Back</button>
+                <button type="button" class="pill-btn" id="zoomInBtn" title="Zoom In">Zoom +</button>
+                <button type="button" class="pill-btn" id="zoomOutBtn" title="Zoom Out">Zoom -</button>
+                <button type="button" class="pill-btn" id="resetViewBtn">Reset Camera</button>
+            </div>
+            <div class="control-row">
+                <span class="control-label">Rotation</span>
+                <button type="button" class="pill-btn active" id="toggleRotateBtn" aria-pressed="true">Auto-Rotate: On</button>
+                <button type="button" class="pill-btn speed-btn" data-speed="10deg">Slow</button>
+                <button type="button" class="pill-btn speed-btn active" data-speed="22deg">Normal</button>
+                <button type="button" class="pill-btn speed-btn" data-speed="45deg">Fast</button>
+            </div>
         </div>
     </div>
 
     <div class="model-stage">
-        <div class="model-platform-glow"></div>
+        <div class="model-loader" id="modelLoader">
+            <div class="spinner-ring"></div>
+            <span>Loading 3D Pharmacist...</span>
+        </div>
         <model-viewer
             id="pharmacistModel"
             src="assets/models/pharmacist.glb"
@@ -137,17 +153,43 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
             camera-controls
             touch-action="pan-y"
             auto-rotate
-            rotation-per-second="18deg"
+            rotation-per-second="22deg"
+            interpolation-decay="100"
             autoplay
             loading="lazy"
             shadow-intensity="1"
             shadow-softness="0.85"
             exposure="1.08"
             camera-orbit="0deg 78deg 2.65m"
-            min-camera-orbit="auto 45deg 1.9m"
-            max-camera-orbit="auto 95deg 3.8m">
+            min-camera-orbit="auto 45deg 1.75m"
+            max-camera-orbit="auto 95deg 4.0m">
         </model-viewer>
         <img src="assets/3d/pharmacist-hero.svg" alt="3D Pharmacist Illustration" class="model-fallback" id="modelFallback" hidden>
+    </div>
+</div>
+
+<!-- 3-Stage Progress Tracker -->
+<div class="progress-tracker" id="saleProgressTracker" aria-label="Sale Entry Progress">
+    <div class="progress-step is-active" id="stepCustomer">
+        <span class="progress-num">1</span>
+        <div class="progress-meta">
+            <strong>Customer</strong>
+            <small id="stepCustomerStatus">Select or register</small>
+        </div>
+    </div>
+    <div class="progress-step" id="stepMedicine">
+        <span class="progress-num">2</span>
+        <div class="progress-meta">
+            <strong>Medicine</strong>
+            <small id="stepMedicineStatus">Select or add SKU</small>
+        </div>
+    </div>
+    <div class="progress-step" id="stepTransaction">
+        <span class="progress-num">3</span>
+        <div class="progress-meta">
+            <strong>Transaction</strong>
+            <small id="stepTransactionStatus">Quantity &amp; date</small>
+        </div>
     </div>
 </div>
 
@@ -275,7 +317,11 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
                 <div class="fields-grid-2">
                     <div class="field">
                         <label for="quantity_input">Quantity (Units)</label>
-                        <input type="number" name="quantity" id="quantity_input" min="1" value="1" required>
+                        <div class="qty-stepper">
+                            <button type="button" class="qty-btn" id="qtyMinusBtn" aria-label="Decrease quantity">-</button>
+                            <input type="number" name="quantity" id="quantity_input" min="1" value="1" required>
+                            <button type="button" class="qty-btn" id="qtyPlusBtn" aria-label="Increase quantity">+</button>
+                        </div>
                     </div>
 
                     <div class="field">
@@ -368,6 +414,37 @@ function clearErrors() {
     saleForm.querySelectorAll(".input-error").forEach((el) => el.classList.remove("input-error"));
 }
 
+const stepCustomer          = document.getElementById("stepCustomer");
+const stepMedicine          = document.getElementById("stepMedicine");
+const stepTransaction       = document.getElementById("stepTransaction");
+const stepCustomerStatus    = document.getElementById("stepCustomerStatus");
+const stepMedicineStatus    = document.getElementById("stepMedicineStatus");
+const stepTransactionStatus = document.getElementById("stepTransactionStatus");
+const qtyMinusBtn           = document.getElementById("qtyMinusBtn");
+const qtyPlusBtn            = document.getElementById("qtyPlusBtn");
+
+let lastTotalText = "";
+
+function updateProgressTracker() {
+    const custDone = Boolean(custSelect.value) ||
+        (newCustName.value.trim().length > 0 && newAddress.value.trim().length > 0 && newPhone.value.trim().length > 0);
+    const medDone = Boolean(medSelect.value) ||
+        (newMedName.value.trim().length > 0 && newMfg.value.trim().length > 0 && (parseFloat(newPriceInput.value) || 0) > 0);
+    const txDone = (parseInt(qtyInput.value, 10) || 0) >= 1 && Boolean(dateInput.value);
+
+    stepCustomer.classList.toggle("is-complete", custDone);
+    stepCustomer.classList.toggle("is-active", !custDone);
+    stepCustomerStatus.textContent = custDone ? "Ready" : "Select or register";
+
+    stepMedicine.classList.toggle("is-complete", medDone);
+    stepMedicine.classList.toggle("is-active", custDone && !medDone);
+    stepMedicineStatus.textContent = medDone ? "Ready" : "Select or add SKU";
+
+    stepTransaction.classList.toggle("is-complete", custDone && medDone && txDone);
+    stepTransaction.classList.toggle("is-active", custDone && medDone);
+    stepTransactionStatus.textContent = txDone ? "Ready to record" : "Quantity & date";
+}
+
 function updatePurchaseSummary() {
     const custText = newCustName.value.trim()
         ? newCustName.value.trim() + " (ID: " + nextCustId + ")"
@@ -384,14 +461,48 @@ function updatePurchaseSummary() {
         price = parseFloat(medSelect.options[medSelect.selectedIndex].dataset.price) || 0;
     }
 
-    const qty = Math.max(0, parseInt(qtyInput.value, 10) || 0);
+    const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+    const totalStr = "₹" + (price * qty).toFixed(2);
+
     summaryCustomer.textContent = custText;
+    summaryCustomer.classList.toggle("is-highlighted", custText !== "Not selected");
     summaryMedicine.textContent = medText;
+    summaryMedicine.classList.toggle("is-highlighted", medText !== "Not selected");
     summaryPrice.textContent    = "₹" + price.toFixed(2);
     summaryQty.textContent      = String(qty);
     summaryDate.textContent     = dateInput.value || "Not set";
-    liveTotalEl.textContent     = "₹" + (price * qty).toFixed(2);
+
+    if (totalStr !== lastTotalText) {
+        liveTotalEl.textContent = totalStr;
+        liveTotalEl.classList.remove("is-bumped");
+        void liveTotalEl.offsetWidth;
+        liveTotalEl.classList.add("is-bumped");
+        lastTotalText = totalStr;
+    }
+
+    updateProgressTracker();
 }
+
+qtyMinusBtn.addEventListener("click", function () {
+    const cur = parseInt(qtyInput.value, 10) || 1;
+    qtyInput.value = String(Math.max(1, cur - 1));
+    clearErrors();
+    updatePurchaseSummary();
+});
+
+qtyPlusBtn.addEventListener("click", function () {
+    const cur = parseInt(qtyInput.value, 10) || 1;
+    qtyInput.value = String(cur + 1);
+    clearErrors();
+    updatePurchaseSummary();
+});
+
+qtyInput.addEventListener("blur", function () {
+    if ((parseInt(this.value, 10) || 0) < 1) {
+        this.value = "1";
+        updatePurchaseSummary();
+    }
+});
 
 // Auto-select customer's medicine when customer name is selected from dropdown
 custSelect.addEventListener("change", function () {
@@ -456,46 +567,54 @@ medSelect.addEventListener("change", function () {
     updatePurchaseSummary();
 });
 
-[newPriceInput, qtyInput, dateInput].forEach((el) => {
+[newAddress, newPhone, newMfg, newPriceInput, qtyInput, dateInput].forEach((el) => {
     el.addEventListener("input", () => {
         clearErrors();
         updatePurchaseSummary();
     });
 });
 
-// Client-side validation & loading feedback
+// Client-side validation, scroll to first invalid field & loading feedback
 saleForm.addEventListener("submit", function (e) {
     clearErrors();
     const errors = [];
+    let firstInvalid = null;
+
+    function flagInvalid(el, msg) {
+        el.classList.add("input-error");
+        if (!firstInvalid) firstInvalid = el;
+        errors.push(msg);
+    }
 
     if (newCustName.value.trim().length > 0) {
-        if (!newAddress.value.trim()) { newAddress.classList.add("input-error"); errors.push("Customer address is required."); }
-        if (!newPhone.value.trim())   { newPhone.classList.add("input-error");   errors.push("Customer phone is required."); }
+        if (!newAddress.value.trim()) flagInvalid(newAddress, "Customer address is required.");
+        if (!newPhone.value.trim())   flagInvalid(newPhone, "Customer phone is required.");
     } else if (!custSelect.value) {
-        custSelect.classList.add("input-error");
-        errors.push("Please select an existing customer or enter a new customer.");
+        flagInvalid(custSelect, "Please select an existing customer or enter a new customer.");
     }
 
     if (newMedName.value.trim().length > 0) {
-        if (!newMfg.value.trim()) { newMfg.classList.add("input-error"); errors.push("Medicine manufacturer is required."); }
-        if ((parseFloat(newPriceInput.value) || 0) <= 0) { newPriceInput.classList.add("input-error"); errors.push("Enter a valid unit price (> 0)."); }
+        if (!newMfg.value.trim()) flagInvalid(newMfg, "Medicine manufacturer is required.");
+        if ((parseFloat(newPriceInput.value) || 0) <= 0) flagInvalid(newPriceInput, "Enter a valid unit price (> 0).");
     } else if (!medSelect.value) {
-        medSelect.classList.add("input-error");
-        errors.push("Please select an existing medicine or add a new medicine.");
+        flagInvalid(medSelect, "Please select an existing medicine or add a new medicine.");
     }
 
     if ((parseInt(qtyInput.value, 10) || 0) < 1) {
-        qtyInput.classList.add("input-error");
-        errors.push("Quantity must be at least 1.");
+        flagInvalid(qtyInput, "Quantity must be at least 1.");
     }
 
     if (!dateInput.value) {
-        dateInput.classList.add("input-error");
-        errors.push("Please select a sale date.");
+        flagInvalid(dateInput, "Please select a sale date.");
     }
 
     if (errors.length > 0) {
         e.preventDefault();
+        if (firstInvalid) {
+            const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            firstInvalid.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+            firstInvalid.focus({ preventScroll: true });
+        }
         if (typeof window.showToast === "function") {
             window.showToast("Check Form Fields", errors[0], "error");
         }
@@ -527,10 +646,15 @@ updatePurchaseSummary();
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 <script>
 (function () {
-    const mv = document.getElementById("pharmacistModel");
-    const fallback = document.getElementById("modelFallback");
-    const resetBtn = document.getElementById("resetViewBtn");
-    const rotateBtn = document.getElementById("toggleRotateBtn");
+    const mv         = document.getElementById("pharmacistModel");
+    const loader     = document.getElementById("modelLoader");
+    const fallback   = document.getElementById("modelFallback");
+    const resetBtn   = document.getElementById("resetViewBtn");
+    const rotateBtn  = document.getElementById("toggleRotateBtn");
+    const zoomInBtn  = document.getElementById("zoomInBtn");
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const angleBtns  = document.querySelectorAll(".pill-btn[data-orbit]");
+    const speedBtns  = document.querySelectorAll(".speed-btn[data-speed]");
     const defaultOrbit = "0deg 78deg 2.65m";
 
     if (!mv) return;
@@ -540,18 +664,48 @@ updatePurchaseSummary();
         mv.removeAttribute("auto-rotate");
         mv.removeAttribute("autoplay");
         if (rotateBtn) {
+            rotateBtn.classList.remove("active");
             rotateBtn.setAttribute("aria-pressed", "false");
-            rotateBtn.querySelector("span").textContent = "Auto-Rotate: Off";
+            rotateBtn.textContent = "Auto-Rotate: Off";
         }
     }
 
+    mv.addEventListener("load", function () {
+        if (loader) loader.hidden = true;
+    });
+
     mv.addEventListener("error", function () {
+        if (loader) loader.hidden = true;
         mv.hidden = true;
         if (fallback) fallback.hidden = false;
     });
 
+    angleBtns.forEach((btn) => {
+        btn.addEventListener("click", function () {
+            angleBtns.forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+            mv.cameraOrbit = this.dataset.orbit;
+        });
+    });
+
+    function adjustZoom(deltaMeters) {
+        const orbit = mv.getCameraOrbit ? mv.getCameraOrbit() : null;
+        if (orbit) {
+            const nextRadius = Math.min(4.0, Math.max(1.75, orbit.radius + deltaMeters));
+            const thetaDeg = (orbit.theta * 180 / Math.PI).toFixed(1) + "deg";
+            const phiDeg   = (orbit.phi * 180 / Math.PI).toFixed(1) + "deg";
+            mv.cameraOrbit = thetaDeg + " " + phiDeg + " " + nextRadius.toFixed(2) + "m";
+        } else if (typeof mv.zoom === "function") {
+            mv.zoom(deltaMeters < 0 ? 1 : -1);
+        }
+    }
+
+    if (zoomInBtn)  zoomInBtn.addEventListener("click", () => adjustZoom(-0.35));
+    if (zoomOutBtn) zoomOutBtn.addEventListener("click", () => adjustZoom(0.35));
+
     if (resetBtn) {
         resetBtn.addEventListener("click", function () {
+            angleBtns.forEach((b) => b.classList.toggle("active", b.dataset.orbit === defaultOrbit));
             mv.cameraOrbit = defaultOrbit;
             mv.fieldOfView = "auto";
         });
@@ -562,15 +716,25 @@ updatePurchaseSummary();
             const isOn = mv.hasAttribute("auto-rotate");
             if (isOn) {
                 mv.removeAttribute("auto-rotate");
+                rotateBtn.classList.remove("active");
                 rotateBtn.setAttribute("aria-pressed", "false");
-                rotateBtn.querySelector("span").textContent = "Auto-Rotate: Off";
+                rotateBtn.textContent = "Auto-Rotate: Off";
             } else {
                 mv.setAttribute("auto-rotate", "");
+                rotateBtn.classList.add("active");
                 rotateBtn.setAttribute("aria-pressed", "true");
-                rotateBtn.querySelector("span").textContent = "Auto-Rotate: On";
+                rotateBtn.textContent = "Auto-Rotate: On";
             }
         });
     }
+
+    speedBtns.forEach((btn) => {
+        btn.addEventListener("click", function () {
+            speedBtns.forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+            mv.setAttribute("rotation-per-second", this.dataset.speed);
+        });
+    });
 })();
 </script>
 
