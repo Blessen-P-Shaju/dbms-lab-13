@@ -141,6 +141,25 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
     </div>
 
     <div class="model-stage">
+        <div class="model-floor-glow"></div>
+
+        <!-- Subtle floating medical cross & capsule accents -->
+        <svg class="floating-med-accent accent-1" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <rect x="4" y="4" width="32" height="32" rx="10" fill="#FFFFFF" opacity="0.9"/>
+            <rect x="17" y="11" width="6" height="18" rx="3" fill="#14B8A6"/>
+            <rect x="11" y="17" width="18" height="6" rx="3" fill="#14B8A6"/>
+        </svg>
+        <svg class="floating-med-accent accent-2" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <g transform="translate(10,4) rotate(24 10 16)">
+                <rect x="0" y="0" width="16" height="32" rx="8" fill="#4965F5"/>
+                <path d="M0 16 H16 V24 A8 8 0 0 1 0 24 Z" fill="#FFFFFF"/>
+            </g>
+        </svg>
+
+        <div class="pharmacist-speech" id="pharmacistSpeech" role="status">
+            Welcome! Ready to manage your pharmacy sales?
+        </div>
+
         <div class="model-loader" id="modelLoader">
             <div class="spinner-ring"></div>
             <span>Loading 3D Pharmacist...</span>
@@ -150,6 +169,7 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
             src="assets/models/pharmacist.glb"
             poster="assets/3d/pharmacist-hero.svg"
             alt="Interactive 360-degree 3D Pharmacist Character"
+            animation-name="IdleFloat"
             camera-controls
             touch-action="pan-y"
             auto-rotate
@@ -157,10 +177,10 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
             interpolation-decay="100"
             autoplay
             loading="lazy"
-            shadow-intensity="1"
-            shadow-softness="0.85"
+            shadow-intensity="1.1"
+            shadow-softness="0.9"
             exposure="1.08"
-            camera-orbit="0deg 78deg 2.65m"
+            camera-orbit="0deg 78deg 2.55m"
             min-camera-orbit="auto 45deg 1.75m"
             max-camera-orbit="auto 95deg 4.0m">
         </model-viewer>
@@ -734,6 +754,45 @@ updatePurchaseSummary();
             this.classList.add("active");
             mv.setAttribute("rotation-per-second", this.dataset.speed);
         });
+    });
+
+    // Tap / Click Interaction: Wave + Speech Bubble, then return to IdleFloat
+    const speechBubble = document.getElementById("pharmacistSpeech");
+    const greetings = [
+        "Welcome! Ready to manage your pharmacy sales?",
+        "Tip: Select a customer to auto-fill their last medicine.",
+        "Drag me 360° or use the camera buttons anytime!"
+    ];
+    let greetingIdx = 0;
+    let pointerStart = null;
+    let speechTimer = null;
+    let waveTimer = null;
+
+    mv.addEventListener("pointerdown", function (e) {
+        pointerStart = { x: e.clientX, y: e.clientY };
+    });
+
+    mv.addEventListener("pointerup", function (e) {
+        if (!pointerStart) return;
+        const dist = Math.hypot(e.clientX - pointerStart.x, e.clientY - pointerStart.y);
+        pointerStart = null;
+        if (dist > 6) return; // User was dragging to rotate, not tapping
+
+        if (speechBubble) {
+            speechBubble.textContent = greetings[greetingIdx % greetings.length];
+            greetingIdx++;
+            speechBubble.classList.add("visible");
+            clearTimeout(speechTimer);
+            speechTimer = setTimeout(() => speechBubble.classList.remove("visible"), 3400);
+        }
+
+        if (!reducedMotion) {
+            mv.setAttribute("animation-name", "GreetWave");
+            clearTimeout(waveTimer);
+            waveTimer = setTimeout(() => {
+                mv.setAttribute("animation-name", "IdleFloat");
+            }, 1750);
+        }
     });
 })();
 </script>
