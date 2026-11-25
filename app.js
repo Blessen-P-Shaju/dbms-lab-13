@@ -41,7 +41,7 @@
         }
     });
 
-    // 2. Toast Notification Helper
+    // 2. Toast Notification Helper (Clean Inline SVG)
     window.showToast = function (title, message, type) {
         const container = document.getElementById('toastContainer');
         if (!container) return;
@@ -51,7 +51,7 @@
 
         const iconHtml = type === 'error'
             ? '<div class="toast-icon"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></div>'
-            : '<img src="assets/3d/success-badge.svg" alt="" class="toast-3d-icon">';
+            : '<div class="toast-icon"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg></div>';
 
         toast.innerHTML =
             iconHtml +
