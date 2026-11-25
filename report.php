@@ -84,15 +84,20 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
 render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
 ?>
 
-<div class="page-header">
+<div class="report-hero">
     <div>
-        <h1>Sales Analytics &amp; Reports</h1>
-        <p class="page-subtitle">Real-time transaction metrics, revenue breakdown, and filterable sales history.</p>
+        <span class="editorial-kicker">
+            <?php echo render_svg_icon('bar-chart', 'icon-sm'); ?>
+            <span>Revenue &amp; Dispensing Analytics</span>
+        </span>
+        <h1 class="editorial-title">Sales <span class="accent-word">Performance</span> Overview.</h1>
+        <p class="editorial-desc">Real-time transaction metrics, medicine revenue breakdown, and filterable sales history.</p>
     </div>
-    <a href="sale.php" class="btn btn-primary">
-        <?php echo render_svg_icon('plus-circle', 'icon-sm'); ?>
-        <span>New Sale</span>
-    </a>
+
+    <div class="report-hero-revenue">
+        <span>Total Matching Revenue</span>
+        <strong data-countup="<?php echo number_format($total_revenue, 2, '.', ''); ?>" data-prefix="₹" data-decimals="2">₹<?php echo number_format($total_revenue, 2); ?></strong>
+    </div>
 </div>
 
 <!-- KPI Summary Strip -->
@@ -263,7 +268,13 @@ render_app_shell_start('report', 'Sales Reports', 'Sales Reports');
         </table>
 
         <div class="empty-state" id="emptyState" style="display: <?php echo count($rows) === 0 ? 'block' : 'none'; ?>;">
-            <img src="assets/3d/medicine-empty.svg" alt="3D Medicine Bottle and Capsules" class="empty-state-3d">
+            <svg width="88" height="72" viewBox="0 0 88 72" fill="none" aria-hidden="true" style="margin-bottom:10px;">
+                <circle cx="44" cy="36" r="32" fill="#EEF2FF"/>
+                <g transform="translate(32, 16) rotate(24 12 20)">
+                    <rect x="0" y="0" width="20" height="42" rx="10" fill="#3B5BFF"/>
+                    <path d="M0 21 H20 V32 A10 10 0 0 1 0 32 Z" fill="#FFFFFF"/>
+                </g>
+            </svg>
             <strong>No sales records found</strong>
             <p>Try adjusting your customer filter, date range, or search query.</p>
         </div>

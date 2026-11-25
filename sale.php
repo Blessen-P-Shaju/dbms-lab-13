@@ -106,85 +106,66 @@ $medicines_res = $conn->query("SELECT * FROM medicine ORDER BY medicine_id ASC")
 render_app_shell_start('sale', 'Create New Sale', 'New Sale');
 ?>
 
-<div class="welcome-3d-card">
-    <div class="welcome-copy">
-        <span class="welcome-kicker">Welcome to Pharmacy Management</span>
-        <h1>Create New Sale</h1>
-        <p class="page-subtitle">Select an existing customer and medicine or register new records in one atomic transaction.</p>
-
-        <div class="welcome-controls">
-            <div class="header-pill">
-                <?php echo render_svg_icon('sparkles', 'icon-sm'); ?>
-                <span>Drag to rotate · Scroll to zoom</span>
-            </div>
-        </div>
-
-        <div class="model-controls-panel" aria-label="3D Model Camera Controls">
-            <div class="control-row">
-                <span class="control-label">View</span>
-                <button type="button" class="pill-btn active" data-orbit="0deg 78deg 2.65m">Front</button>
-                <button type="button" class="pill-btn" data-orbit="-90deg 78deg 2.65m">Left</button>
-                <button type="button" class="pill-btn" data-orbit="90deg 78deg 2.65m">Right</button>
-                <button type="button" class="pill-btn" data-orbit="180deg 78deg 2.65m">Back</button>
-                <button type="button" class="pill-btn" id="zoomInBtn" title="Zoom In">Zoom +</button>
-                <button type="button" class="pill-btn" id="zoomOutBtn" title="Zoom Out">Zoom -</button>
-                <button type="button" class="pill-btn" id="resetViewBtn">Reset Camera</button>
-            </div>
-            <div class="control-row">
-                <span class="control-label">Rotation</span>
-                <button type="button" class="pill-btn active" id="toggleRotateBtn" aria-pressed="true">Auto-Rotate: On</button>
-                <button type="button" class="pill-btn speed-btn" data-speed="10deg">Slow</button>
-                <button type="button" class="pill-btn speed-btn active" data-speed="22deg">Normal</button>
-                <button type="button" class="pill-btn speed-btn" data-speed="45deg">Fast</button>
-            </div>
-        </div>
+<div class="editorial-hero">
+    <div>
+        <span class="editorial-kicker">
+            <?php echo render_svg_icon('sparkles', 'icon-sm'); ?>
+            <span>Point-of-Sale Workspace</span>
+        </span>
+        <h1 class="editorial-title">Dispense &amp; <span class="accent-word">Record</span> Pharmacy Sales.</h1>
+        <p class="editorial-desc">Select an existing customer and medicine or register new records in one atomic MySQL transaction with live billing.</p>
     </div>
 
-    <div class="model-stage">
-        <div class="model-floor-glow"></div>
+    <!-- Abstract Layered Organic Medical & Capsule Art (No Square Frame) -->
+    <div class="editorial-art" aria-hidden="true">
+        <svg viewBox="0 0 360 240" fill="none">
+            <defs>
+                <linearGradient id="blobGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#3B5BFF" stop-opacity="0.16"/>
+                    <stop offset="55%" stop-color="#A78BFA" stop-opacity="0.18"/>
+                    <stop offset="100%" stop-color="#14B8A6" stop-opacity="0.18"/>
+                </linearGradient>
+                <linearGradient id="capCobalt" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#3B5BFF"/>
+                    <stop offset="100%" stop-color="#A78BFA"/>
+                </linearGradient>
+                <linearGradient id="capTeal" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#14B8A6"/>
+                    <stop offset="100%" stop-color="#38BDF8"/>
+                </linearGradient>
+            </defs>
 
-        <!-- Subtle floating medical cross & capsule accents -->
-        <svg class="floating-med-accent accent-1" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-            <rect x="4" y="4" width="32" height="32" rx="10" fill="#FFFFFF" opacity="0.9"/>
-            <rect x="17" y="11" width="6" height="18" rx="3" fill="#14B8A6"/>
-            <rect x="11" y="17" width="18" height="6" rx="3" fill="#14B8A6"/>
-        </svg>
-        <svg class="floating-med-accent accent-2" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-            <g transform="translate(10,4) rotate(24 10 16)">
-                <rect x="0" y="0" width="16" height="32" rx="8" fill="#4965F5"/>
-                <path d="M0 16 H16 V24 A8 8 0 0 1 0 24 Z" fill="#FFFFFF"/>
+            <!-- Organic Flowing Backdrop Shape -->
+            <path d="M54 118C44 64 98 22 174 28C250 34 318 68 310 132C302 196 232 222 154 212C76 202 64 172 54 118Z" fill="url(#blobGrad)"/>
+            <circle cx="272" cy="54" r="36" fill="#FF7A6B" fill-opacity="0.14"/>
+            <circle cx="84" cy="186" r="24" fill="#14B8A6" fill-opacity="0.16"/>
+
+            <!-- Floating Abstract Capsules & Medical Cross -->
+            <g class="drift-layer">
+                <!-- Large Cobalt/White Capsule -->
+                <g transform="translate(158, 42) rotate(32)">
+                    <rect x="0" y="0" width="44" height="96" rx="22" fill="url(#capCobalt)"/>
+                    <path d="M0 48 H44 V74 A22 22 0 0 1 0 74 Z" fill="#FFFFFF"/>
+                    <rect x="11" y="14" width="6" height="22" rx="3" fill="#FFFFFF" opacity="0.45"/>
+                </g>
+
+                <!-- Teal/White Capsule -->
+                <g transform="translate(242, 108) rotate(-28)">
+                    <rect x="0" y="0" width="32" height="72" rx="16" fill="url(#capTeal)"/>
+                    <path d="M0 36 H32 V56 A16 16 0 0 1 0 56 Z" fill="#FFFFFF"/>
+                </g>
+
+                <!-- Soft Coral Pill Ring -->
+                <circle cx="104" cy="96" r="22" stroke="#FF7A6B" stroke-width="10" fill="#FAF9F6"/>
+
+                <!-- Minimal Medical Cross -->
+                <g transform="translate(194, 152)">
+                    <rect x="0" y="0" width="46" height="46" rx="14" fill="#1E1B4B"/>
+                    <rect x="19" y="11" width="8" height="24" rx="4" fill="#14B8A6"/>
+                    <rect x="11" y="19" width="24" height="8" rx="4" fill="#14B8A6"/>
+                </g>
             </g>
         </svg>
-
-        <div class="pharmacist-speech" id="pharmacistSpeech" role="status">
-            Welcome! Ready to manage your pharmacy sales?
-        </div>
-
-        <div class="model-loader" id="modelLoader">
-            <div class="spinner-ring"></div>
-            <span>Loading 3D Pharmacist...</span>
-        </div>
-        <model-viewer
-            id="pharmacistModel"
-            src="assets/models/pharmacist.glb"
-            poster="assets/3d/pharmacist-hero.svg"
-            alt="Interactive 360-degree 3D Pharmacist Character"
-            animation-name="IdleFloat"
-            camera-controls
-            touch-action="pan-y"
-            auto-rotate
-            rotation-per-second="22deg"
-            interpolation-decay="100"
-            autoplay
-            loading="lazy"
-            shadow-intensity="1.1"
-            shadow-softness="0.9"
-            exposure="1.08"
-            camera-orbit="0deg 78deg 2.55m"
-            min-camera-orbit="auto 45deg 1.75m"
-            max-camera-orbit="auto 95deg 4.0m">
-        </model-viewer>
-        <img src="assets/3d/pharmacist-hero.svg" alt="3D Pharmacist Illustration" class="model-fallback" id="modelFallback" hidden>
     </div>
 </div>
 
@@ -217,11 +198,7 @@ render_app_shell_start('sale', 'Create New Sale', 'New Sale');
     <div class="alert-banner <?php echo $message_type; ?>" id="serverAlert"
          data-type="<?php echo $message_type; ?>"
          data-message="<?php echo htmlspecialchars($message); ?>">
-        <?php if ($message_type === 'success') : ?>
-            <img src="assets/3d/success-badge.svg" alt="" class="alert-3d-icon">
-        <?php else : ?>
-            <?php echo render_svg_icon('alert'); ?>
-        <?php endif; ?>
+        <?php echo render_svg_icon($message_type === 'success' ? 'check' : 'alert'); ?>
         <span><?php echo htmlspecialchars($message); ?></span>
     </div>
 <?php endif; ?>
@@ -661,140 +638,6 @@ clearFormBtn.addEventListener("click", function () {
 });
 
 updatePurchaseSummary();
-</script>
-
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-<script>
-(function () {
-    const mv         = document.getElementById("pharmacistModel");
-    const loader     = document.getElementById("modelLoader");
-    const fallback   = document.getElementById("modelFallback");
-    const resetBtn   = document.getElementById("resetViewBtn");
-    const rotateBtn  = document.getElementById("toggleRotateBtn");
-    const zoomInBtn  = document.getElementById("zoomInBtn");
-    const zoomOutBtn = document.getElementById("zoomOutBtn");
-    const angleBtns  = document.querySelectorAll(".pill-btn[data-orbit]");
-    const speedBtns  = document.querySelectorAll(".speed-btn[data-speed]");
-    const defaultOrbit = "0deg 78deg 2.65m";
-
-    if (!mv) return;
-
-    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-        mv.removeAttribute("auto-rotate");
-        mv.removeAttribute("autoplay");
-        if (rotateBtn) {
-            rotateBtn.classList.remove("active");
-            rotateBtn.setAttribute("aria-pressed", "false");
-            rotateBtn.textContent = "Auto-Rotate: Off";
-        }
-    }
-
-    mv.addEventListener("load", function () {
-        if (loader) loader.hidden = true;
-    });
-
-    mv.addEventListener("error", function () {
-        if (loader) loader.hidden = true;
-        mv.hidden = true;
-        if (fallback) fallback.hidden = false;
-    });
-
-    angleBtns.forEach((btn) => {
-        btn.addEventListener("click", function () {
-            angleBtns.forEach((b) => b.classList.remove("active"));
-            this.classList.add("active");
-            mv.cameraOrbit = this.dataset.orbit;
-        });
-    });
-
-    function adjustZoom(deltaMeters) {
-        const orbit = mv.getCameraOrbit ? mv.getCameraOrbit() : null;
-        if (orbit) {
-            const nextRadius = Math.min(4.0, Math.max(1.75, orbit.radius + deltaMeters));
-            const thetaDeg = (orbit.theta * 180 / Math.PI).toFixed(1) + "deg";
-            const phiDeg   = (orbit.phi * 180 / Math.PI).toFixed(1) + "deg";
-            mv.cameraOrbit = thetaDeg + " " + phiDeg + " " + nextRadius.toFixed(2) + "m";
-        } else if (typeof mv.zoom === "function") {
-            mv.zoom(deltaMeters < 0 ? 1 : -1);
-        }
-    }
-
-    if (zoomInBtn)  zoomInBtn.addEventListener("click", () => adjustZoom(-0.35));
-    if (zoomOutBtn) zoomOutBtn.addEventListener("click", () => adjustZoom(0.35));
-
-    if (resetBtn) {
-        resetBtn.addEventListener("click", function () {
-            angleBtns.forEach((b) => b.classList.toggle("active", b.dataset.orbit === defaultOrbit));
-            mv.cameraOrbit = defaultOrbit;
-            mv.fieldOfView = "auto";
-        });
-    }
-
-    if (rotateBtn) {
-        rotateBtn.addEventListener("click", function () {
-            const isOn = mv.hasAttribute("auto-rotate");
-            if (isOn) {
-                mv.removeAttribute("auto-rotate");
-                rotateBtn.classList.remove("active");
-                rotateBtn.setAttribute("aria-pressed", "false");
-                rotateBtn.textContent = "Auto-Rotate: Off";
-            } else {
-                mv.setAttribute("auto-rotate", "");
-                rotateBtn.classList.add("active");
-                rotateBtn.setAttribute("aria-pressed", "true");
-                rotateBtn.textContent = "Auto-Rotate: On";
-            }
-        });
-    }
-
-    speedBtns.forEach((btn) => {
-        btn.addEventListener("click", function () {
-            speedBtns.forEach((b) => b.classList.remove("active"));
-            this.classList.add("active");
-            mv.setAttribute("rotation-per-second", this.dataset.speed);
-        });
-    });
-
-    // Tap / Click Interaction: Wave + Speech Bubble, then return to IdleFloat
-    const speechBubble = document.getElementById("pharmacistSpeech");
-    const greetings = [
-        "Welcome! Ready to manage your pharmacy sales?",
-        "Tip: Select a customer to auto-fill their last medicine.",
-        "Drag me 360° or use the camera buttons anytime!"
-    ];
-    let greetingIdx = 0;
-    let pointerStart = null;
-    let speechTimer = null;
-    let waveTimer = null;
-
-    mv.addEventListener("pointerdown", function (e) {
-        pointerStart = { x: e.clientX, y: e.clientY };
-    });
-
-    mv.addEventListener("pointerup", function (e) {
-        if (!pointerStart) return;
-        const dist = Math.hypot(e.clientX - pointerStart.x, e.clientY - pointerStart.y);
-        pointerStart = null;
-        if (dist > 6) return; // User was dragging to rotate, not tapping
-
-        if (speechBubble) {
-            speechBubble.textContent = greetings[greetingIdx % greetings.length];
-            greetingIdx++;
-            speechBubble.classList.add("visible");
-            clearTimeout(speechTimer);
-            speechTimer = setTimeout(() => speechBubble.classList.remove("visible"), 3400);
-        }
-
-        if (!reducedMotion) {
-            mv.setAttribute("animation-name", "GreetWave");
-            clearTimeout(waveTimer);
-            waveTimer = setTimeout(() => {
-                mv.setAttribute("animation-name", "IdleFloat");
-            }, 1750);
-        }
-    });
-})();
 </script>
 
 <?php render_app_shell_end(); ?>
