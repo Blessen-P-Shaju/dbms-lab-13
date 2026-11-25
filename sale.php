@@ -107,91 +107,124 @@ while ($m = $map_res->fetch_assoc()) {
 <body>
 <div class="container">
 
-    <h2>Pharmacy Sales System</h2>
-    <h3>Sale Entry Form</h3>
-
-    <p><a class="nav-link" href="report.php">View Sales Report</a></p>
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-icon">+</div>
+            <div>
+                <h2>PharmaCare Sales System</h2>
+                <p class="brand-sub">Point-of-Sale &amp; Inventory Entry</p>
+            </div>
+        </div>
+        <nav class="nav-tabs">
+            <a class="nav-link active" href="sale.php">New Sale</a>
+            <a class="nav-link" href="report.php">Sales Report</a>
+        </nav>
+    </header>
 
     <p class="message"><?php echo htmlspecialchars($message); ?></p>
 
     <form method="post" class="sale-form">
+        <div class="form-grid">
 
-        <h3>Select Existing Customer &amp; Medicine</h3>
-        Customer:
-        <select name="customer_id" id="customer_select">
-            <option value="">Select Customer</option>
+            <div class="section-card">
+                <h3><span class="step-badge">1</span> Select Existing Customer &amp; Medicine</h3>
+                <div class="field">
+                    <label for="customer_select">Customer</label>
+                    <select name="customer_id" id="customer_select">
+                        <option value="">Select Customer</option>
 
-            <?php
-            $result = $conn->query("SELECT * FROM customer ORDER BY customer_id ASC");
+                        <?php
+                        $result = $conn->query("SELECT * FROM customer ORDER BY customer_id ASC");
 
-            while ($row = $result->fetch_assoc()) {
-                echo "<option value='" . $row['customer_id'] . "'>"
-                    . $row['customer_id'] . " - " . htmlspecialchars($row['name']) .
-                    "</option>";
-            }
-            ?>
-        </select>
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<option value='" . $row['customer_id'] . "'>"
+                                . $row['customer_id'] . " - " . htmlspecialchars($row['name']) .
+                                "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
 
-        <br><br>
+                <div class="field">
+                    <label for="medicine_select">Medicine</label>
+                    <select name="medicine_id" id="medicine_select">
+                        <option value="" data-price="0">Select Medicine</option>
 
-        Medicine:
-        <select name="medicine_id" id="medicine_select">
-            <option value="">Select Medicine</option>
+                        <?php
+                        $result = $conn->query("SELECT * FROM medicine ORDER BY medicine_id ASC");
 
-            <?php
-            $result = $conn->query("SELECT * FROM medicine ORDER BY medicine_id ASC");
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<option value='" . $row['medicine_id'] . "' data-price='" . $row['unit_price'] . "'>"
+                                . $row['medicine_id'] . " - " . htmlspecialchars($row['medicine_name']) . " (₹" . number_format($row['unit_price'], 2) . ")" .
+                                "</option>";
+                        }
+                        ?>
+                    </select>
+                    <span id="med_note"></span>
+                </div>
+            </div>
 
-            while ($row = $result->fetch_assoc()) {
-                echo "<option value='" . $row['medicine_id'] . "'>"
-                    . $row['medicine_id'] . " - " . htmlspecialchars($row['medicine_name']) .
-                    "</option>";
-            }
-            ?>
-        </select>
-        <span id="med_note"></span>
+            <div class="section-card">
+                <h3><span class="step-badge">2</span> Or Add New Customer &amp; Medicine</h3>
+                <div class="sub-grid">
+                    <div class="field">
+                        <label for="new_cust_name">Customer Name</label>
+                        <input type="text" name="new_cust_name" id="new_cust_name" placeholder="e.g. Kiran Raj">
+                        <span id="cust_id_preview"></span>
+                    </div>
 
-        <br><br>
+                    <div class="field">
+                        <label for="new_phone">Phone</label>
+                        <input type="text" name="new_phone" id="new_phone" placeholder="10-digit number">
+                    </div>
 
-        <h3>Or Add New Customer &amp; Medicine</h3>
-        Customer Name:
-        <input type="text" name="new_cust_name" id="new_cust_name">
-        <span id="cust_id_preview"></span>
-        <br><br>
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <label for="new_address">Address</label>
+                        <input type="text" name="new_address" id="new_address" placeholder="City / Street address">
+                    </div>
 
-        Address:
-        <input type="text" name="new_address" id="new_address">
-        <br><br>
+                    <div class="field">
+                        <label for="new_med_name">Medicine Name</label>
+                        <input type="text" name="new_med_name" id="new_med_name" placeholder="e.g. Azithromycin 500mg">
+                        <span id="med_id_preview"></span>
+                    </div>
 
-        Phone:
-        <input type="text" name="new_phone" id="new_phone">
-        <br><br>
+                    <div class="field">
+                        <label for="new_manufacturer">Manufacturer</label>
+                        <input type="text" name="new_manufacturer" id="new_manufacturer" placeholder="e.g. Cipla">
+                    </div>
 
-        Medicine Name:
-        <input type="text" name="new_med_name" id="new_med_name">
-        <span id="med_id_preview"></span>
-        <br><br>
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <label for="new_unit_price">Unit Price (₹)</label>
+                        <input type="number" step="0.01" name="new_unit_price" id="new_unit_price" min="0.01" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
 
-        Manufacturer:
-        <input type="text" name="new_manufacturer" id="new_manufacturer">
-        <br><br>
+            <div class="section-card full-width">
+                <h3><span class="step-badge">3</span> Sale Details</h3>
+                <div class="sub-grid">
+                    <div class="field">
+                        <label for="quantity_input">Quantity</label>
+                        <input type="number" name="quantity" id="quantity_input" min="1" value="1" required>
+                    </div>
 
-        Unit Price:
-        <input type="number" step="0.01" name="new_unit_price" id="new_unit_price" min="0.01">
-        <br><br>
+                    <div class="field">
+                        <label for="sale_date_input">Sale Date</label>
+                        <input type="date" name="sale_date" id="sale_date_input" value="<?php echo date('Y-m-d'); ?>" required>
+                    </div>
+                </div>
 
-        <h3>Sale Details</h3>
-        Quantity:
-        <input type="number" name="quantity" min="1" required>
+                <div class="checkout-bar">
+                    <div class="bill-preview">
+                        <span class="bill-label">Estimated Total:</span>
+                        <span class="bill-amount" id="live_total">₹0.00</span>
+                    </div>
+                    <input type="submit" name="submit" value="Record Sale">
+                </div>
+            </div>
 
-        <br><br>
-
-        Sale Date:
-        <input type="date" name="sale_date" required>
-
-        <br><br>
-
-        <input type="submit" name="submit" value="Submit">
-
+        </div>
     </form>
 
     <script>
@@ -254,7 +287,29 @@ while ($m = $map_res->fetch_assoc()) {
             newMedName.value = "";
             medIdPreview.textContent = "";
         }
+        updateLiveTotal();
     });
+
+    const qtyInput      = document.getElementById("quantity_input");
+    const newPriceInput = document.getElementById("new_unit_price");
+    const liveTotalEl   = document.getElementById("live_total");
+
+    function updateLiveTotal() {
+        const qty = parseInt(qtyInput.value, 10) || 0;
+        let price = 0;
+        if (newMedName.value.trim().length > 0) {
+            price = parseFloat(newPriceInput.value) || 0;
+        } else if (medSelect.selectedIndex >= 0) {
+            price = parseFloat(medSelect.options[medSelect.selectedIndex].dataset.price) || 0;
+        }
+        liveTotalEl.textContent = "₹" + (price * qty).toFixed(2);
+    }
+
+    custSelect.addEventListener("change", updateLiveTotal);
+    newMedName.addEventListener("input", updateLiveTotal);
+    newPriceInput.addEventListener("input", updateLiveTotal);
+    qtyInput.addEventListener("input", updateLiveTotal);
+    updateLiveTotal();
     </script>
 
 </div>

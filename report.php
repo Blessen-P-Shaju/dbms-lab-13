@@ -50,6 +50,19 @@ if (!empty($params)) {
 $stmt->execute();
 $result = $stmt->get_result();
 
+$rows = [];
+$total_sales_count = 0;
+$total_units = 0;
+$total_revenue = 0.0;
+if ($result) {
+    while ($r = $result->fetch_assoc()) {
+        $rows[] = $r;
+        $total_sales_count++;
+        $total_units += intval($r['quantity']);
+        $total_revenue += floatval($r['amount']);
+    }
+}
+
 $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY customer_id ASC");
 ?>
 
@@ -63,9 +76,34 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
 <body>
 <div class="container container-wide">
 
-    <h2>Pharmacy Sales Report</h2>
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-icon">+</div>
+            <div>
+                <h2>PharmaCare Sales Report</h2>
+                <p class="brand-sub">Transaction Analytics &amp; History</p>
+            </div>
+        </div>
+        <nav class="nav-tabs">
+            <a class="nav-link" href="sale.php">New Sale</a>
+            <a class="nav-link active" href="report.php">Sales Report</a>
+        </nav>
+    </header>
 
-    <p><a class="nav-link" href="sale.php">Record New Sale</a></p>
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Transactions</div>
+            <div class="kpi-value"><?php echo $total_sales_count; ?></div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Units Sold</div>
+            <div class="kpi-value"><?php echo $total_units; ?></div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value">₹<?php echo number_format($total_revenue, 2); ?></div>
+        </div>
+    </div>
 
     <form method="get" action="" class="filter-bar">
         Select Report:
@@ -84,7 +122,7 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
     </form>
 
     <div class="search-bar">
-        Search: <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Type to search...">
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by customer, medicine, manufacturer, or date...">
     </div>
 
     <div class="table-wrapper">
@@ -103,8 +141,8 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
         </tr>
 
         <?php
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
+        if (count($rows) > 0) {
+            foreach ($rows as $row) {
                 echo "<tr>";
                 echo "<td>" . $row['sale_id'] . "</td>";
                 echo "<td>" . $row['customer_id'] . "</td>";
@@ -114,7 +152,7 @@ $customers = $conn->query("SELECT customer_id, name FROM customer ORDER BY custo
                 echo "<td>" . htmlspecialchars($row['medicine_name']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['manufacturer']) . "</td>";
                 echo "<td>" . $row['quantity'] . "</td>";
-                echo "<td>" . $row['amount'] . "</td>";
+                echo "<td>₹" . number_format((float)$row['amount'], 2) . "</td>";
                 echo "<td>" . $row['sale_date'] . "</td>";
                 echo "</tr>";
             }
